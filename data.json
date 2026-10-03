@@ -10,29 +10,7 @@
     "indirizzo": "VIA TOGLIATTI LOC LEVANE",
     "citta": "Bucine",
     "prov": "AR",
-    "risultato": {
-      "sets": [
-        {
-          "gv": 12,
-          "opp": 25
-        },
-        {
-          "gv": 25,
-          "opp": 10
-        },
-        {
-          "gv": 25,
-          "opp": 10
-        },
-        {
-          "gv": 25,
-          "opp": 12
-        }
-      ],
-      "score": "3-1",
-      "esito": "V",
-      "note": "12-25, 25-10, 25-10, 25-12"
-    },
+    "risultato": null,
     "stagione": "2026/2027",
     "campionato": "FIPAV U14F"
   },
