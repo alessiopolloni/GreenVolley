@@ -10,29 +10,7 @@
     "indirizzo": "VIA TOGLIATTI LOC LEVANE",
     "citta": "Bucine",
     "prov": "AR",
-    "risultato": {
-      "sets": [
-        {
-          "gv": 12,
-          "opp": 25
-        },
-        {
-          "gv": 25,
-          "opp": 10
-        },
-        {
-          "gv": 25,
-          "opp": 10
-        },
-        {
-          "gv": 25,
-          "opp": 12
-        }
-      ],
-      "score": "3-1",
-      "esito": "V",
-      "note": "12-25, 25-10, 25-10, 25-12"
-    },
+    "risultato": null,
     "stagione": "2026/2027",
     "campionato": "FIPAV U14F"
   },
@@ -47,29 +25,7 @@
     "indirizzo": "VIA JAMES COOK 1",
     "citta": "Arezzo",
     "prov": "AR",
-    "risultato": {
-      "sets": [
-        {
-          "gv": 25,
-          "opp": 12
-        },
-        {
-          "gv": 25,
-          "opp": 22
-        },
-        {
-          "gv": 15,
-          "opp": 25
-        },
-        {
-          "gv": 25,
-          "opp": 22
-        }
-      ],
-      "score": "3-1",
-      "esito": "V",
-      "note": "25-12, 25-22, 15-25, 25-22"
-    },
+    "risultato": null,
     "stagione": "2026/2027",
     "campionato": "FIPAV U14F"
   },
@@ -84,25 +40,7 @@
     "indirizzo": "VIA TOGLIATTI LOC LEVANE",
     "citta": "Bucine",
     "prov": "AR",
-    "risultato": {
-      "sets": [
-        {
-          "gv": 25,
-          "opp": 22
-        },
-        {
-          "gv": 25,
-          "opp": 21
-        },
-        {
-          "gv": 25,
-          "opp": 16
-        }
-      ],
-      "score": "3-0",
-      "esito": "V",
-      "note": "25-22, 25-21, 25-16"
-    },
+    "risultato": null,
     "stagione": "2026/2027",
     "campionato": "FIPAV U14F"
   },
@@ -132,33 +70,7 @@
     "indirizzo": "VIA TOGLIATTI LOC LEVANE",
     "citta": "Bucine",
     "prov": "AR",
-    "risultato": {
-      "sets": [
-        {
-          "gv": 25,
-          "opp": 12
-        },
-        {
-          "gv": 25,
-          "opp": 22
-        },
-        {
-          "gv": 12,
-          "opp": 25
-        },
-        {
-          "gv": 15,
-          "opp": 25
-        },
-        {
-          "gv": 10,
-          "opp": 15
-        }
-      ],
-      "score": "2-3",
-      "esito": "P",
-      "note": "25-12, 25-22, 12-25, 15-25, 10-15"
-    },
+    "risultato": null,
     "stagione": "2026/2027",
     "campionato": "FIPAV U14F"
   },
