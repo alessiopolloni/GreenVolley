@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Green Volley U14F</title>
+<style>
+:root{
+  --bg:#f6f4ef; --card:#ffffff; --ink:#1c1c1c; --sub:#6b6b6b; --line:#e6e2d8;
+  --accent:#3fa34d; --accent-ink:#ffffff; --away:#c98a2c; --home:#3fa34d;
+  --danger:#c0392b;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15181a; --card:#1f2326; --ink:#eee; --sub:#9aa0a6; --line:#2c3033;
+    --accent:#4fbb5e; --accent-ink:#0c130d; --away:#e0a13f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15181a; --card:#1f2326; --ink:#eee; --sub:#9aa0a6; --line:#2c3033;
+  --accent:#4fbb5e; --accent-ink:#0c130d; --away:#e0a13f;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--ink); min-height:100%;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+header{
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 14px; text-align:center;
+  border-bottom:1px solid var(--line);
+}
+header h1{margin:0; font-size:1.25rem;}
+header p{margin:4px 0 0; color:var(--sub); font-size:.85rem;}
+main{max-width:640px; margin:0 auto; padding:14px 12px 40px;}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:14px; margin-bottom:12px;
+}
+.card.next{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent);}
+.row-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;}
+.giornata{font-size:.72rem; color:var(--sub); text-transform:uppercase; letter-spacing:.04em;}
+.badge{
+  font-size:.72rem; font-weight:600; padding:2px 8px; border-radius:999px; color:#fff;
+}
+.badge.casa{background:var(--home);} .badge.trasferta{background:var(--away);}
+.data{font-weight:600; margin-top:6px; font-size:1rem;}
+.match{font-size:1.05rem; margin-top:4px;}
+.match b{font-weight:700;}
+.luogo{color:var(--sub); font-size:.85rem; margin-top:6px; line-height:1.4;}
+.maps-link{color:var(--accent); text-decoration:none; font-weight:600;}
+.result{
+  margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);
+  display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+}
+.score{font-size:1.15rem; font-weight:700;}
+.score.win{color:var(--home);} .score.loss{color:var(--danger);}
+.note{color:var(--sub); font-size:.8rem; margin-top:2px;}
+button{
+  font:inherit; border:none; border-radius:10px; padding:8px 12px; cursor:pointer;
+}
+.btn-primary{background:var(--accent); color:var(--accent-ink); font-weight:600;}
+.btn-ghost{background:transparent; color:var(--sub); text-decoration:underline; padding:4px;}
+.btn-ghost.danger{color:var(--danger);}
+.confirm-text{font-size:.8rem; color:var(--danger); font-weight:600;}
+.actions{display:flex; gap:8px;}
+form.entry{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); display:none;}
+form.entry.open{display:block;}
+form.entry input{
+  width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+  background:var(--bg); color:var(--ink); font:inherit; margin-bottom:8px;
+}
+form.entry label{font-size:.78rem; color:var(--sub);}
+.form-actions{display:flex; gap:8px; justify-content:flex-end;}
+.sets-grid{
+  display:grid; grid-template-columns:64px 1fr 1fr; gap:6px 8px; align-items:center;
+  margin-bottom:10px;
+}
+.sets-head{font-size:.75rem; color:var(--sub); text-align:center; font-weight:600;}
+.set-label{font-size:.8rem; color:var(--sub);}
+form.entry .sets-grid input{
+  width:100%; text-align:center; padding:8px 4px; border-radius:8px; border:1px solid var(--line);
+  background:var(--bg); color:var(--ink); font:inherit; margin-bottom:0;
+}
+.sets-grid-4{grid-template-columns:56px 1fr 1fr 28px;}
+.sets-grid.readonly{margin-bottom:0;}
+.set-val{text-align:center; font-weight:600;}
+.set-icon{text-align:center; font-weight:700; font-size:1.05rem;}
+.set-icon.won{color:var(--home);}
+.set-icon.lost{color:var(--danger);}
+.set-label.tot, .set-val.tot{border-top:1px dashed var(--line); padding-top:6px; font-weight:700;}
+.esito-banner{
+  text-align:center; font-weight:700; padding:8px; border-radius:10px; margin-bottom:10px; font-size:.9rem;
+}
+.esito-banner.win{background:rgba(63,163,77,.15); color:var(--home);}
+.esito-banner.loss{background:rgba(192,57,43,.15); color:var(--danger);}
+.esito-banner.draw{background:rgba(0,0,0,.06); color:var(--sub);}
+.result-block .result{border-top:none; padding-top:0; margin-top:0;}
+.result-block{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);}
+.btn-secondary{background:var(--line); color:var(--ink);}
+#status{
+  position:fixed; left:0; right:0; bottom:calc(env(safe-area-inset-bottom,0px) + 12px);
+  display:flex; justify-content:center; pointer-events:none;
+}
+#status span{
+  background:var(--ink); color:var(--bg); padding:8px 14px; border-radius:999px;
+  font-size:.85rem; opacity:0; transition:opacity .3s;
+}
+#status span.show{opacity:.92;}
+.readonly-note{text-align:center; color:var(--sub); font-size:.78rem; margin:0 0 10px;}
+
+.view-toggle{display:flex; justify-content:center; gap:6px; margin-top:10px;}
+.view-toggle button{background:var(--line); color:var(--ink); font-size:.85rem; padding:6px 14px;}
+.view-toggle button.active{background:var(--accent); color:var(--accent-ink); font-weight:600;}
+
+.cal-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:6px;}
+.cal-nav button{background:var(--line); color:var(--ink); padding:6px 12px;}
+.cal-nav-center{display:flex; flex-direction:column; align-items:center; gap:2px;}
+.cal-nav h2{margin:0; font-size:1.05rem; text-transform:capitalize;}
+.btn-today{background:var(--accent); color:var(--accent-ink); font-size:.72rem; padding:3px 10px; font-weight:600;}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+.cal-dow{text-align:center; font-size:.7rem; color:var(--sub); padding-bottom:4px; text-transform:uppercase;}
+.cal-day{
+  aspect-ratio:1; border-radius:10px; background:var(--card); border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  font-size:.85rem; position:relative;
+}
+.cal-day.empty{background:transparent; border-color:transparent;}
+.cal-day.has-match{cursor:pointer; border-color:var(--accent); font-weight:700;}
+.cal-day.has-match.trasferta-day{border-color:var(--away);}
+.cal-day .dot{width:6px; height:6px; border-radius:999px; background:var(--home);}
+.cal-day.trasferta-day .dot{background:var(--away);}
+.cal-day .result-icon{font-size:.8rem; font-weight:800; line-height:1;}
+.cal-day.esito-win{background:rgba(63,163,77,.18); border-color:var(--home);}
+.cal-day.esito-win .result-icon{color:var(--home);}
+.cal-day.esito-loss{background:rgba(192,57,43,.16); border-color:var(--danger);}
+.cal-day.esito-loss .result-icon{color:var(--danger);}
+.cal-day.multi-match{border-color:var(--ink);}
+.cal-day .ind-row{display:flex; gap:4px; align-items:center; justify-content:center;}
+.cal-day .ind-row .result-icon.won{color:var(--home);}
+.cal-day .ind-row .result-icon.lost{color:var(--danger);}
+.cal-day.today{outline:3px solid var(--ink); outline-offset:-2px; font-weight:800;}
+.cal-day.today span:first-child{text-decoration:underline;}
+
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.5); display:none;
+  align-items:flex-end; justify-content:center; z-index:50; padding:0;
+}
+.modal-overlay.open{display:flex;}
+.modal-sheet{
+  background:var(--bg); width:100%; max-width:640px; max-height:88vh; overflow-y:auto;
+  border-radius:18px 18px 0 0; padding:16px 14px calc(env(safe-area-inset-bottom,0px) + 20px);
+}
+.modal-close{display:block; margin:0 0 10px auto; background:var(--line); color:var(--ink); padding:6px 12px;}
+
+.filter-bar{display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:12px;}
+#season-select{
+  font:inherit; font-weight:600; padding:6px 10px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card); color:var(--ink);
+}
+.camp-filter{display:flex; flex-wrap:wrap; justify-content:center; gap:6px;}
+.camp-pill{
+  font-size:.78rem; padding:5px 12px; border-radius:999px; border:1px solid var(--line);
+  background:var(--card); color:var(--ink); cursor:pointer;
+}
+.camp-pill.active{border-color:transparent; color:#fff; font-weight:600;}
+.camp-badge{
+  display:inline-block; font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:999px;
+  color:#fff; margin-top:6px;
+}
+.share-btn{
+  display:block; margin-top:10px; padding:9px 12px; text-align:center; text-decoration:none;
+  background:#25d366; color:#0b2e17; font-weight:700; font-size:.88rem; border-radius:10px;
+}
+.view-toggle{flex-wrap:wrap;}
+.synth-summary{margin-bottom:12px;}
+.synth-list{background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden;}
+.synth-row{
+  display:grid; grid-template-columns:1fr auto auto 22px; align-items:center; gap:8px;
+  padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer;
+}
+.synth-row:last-child{border-bottom:none;}
+.synth-row:active{background:var(--bg);}
+.synth-main{display:flex; flex-direction:column; min-width:0;}
+.synth-opp{font-weight:600; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.synth-date{font-size:.7rem; color:var(--sub);}
+.synth-ha{font-size:.75rem; color:var(--sub); white-space:nowrap;}
+.synth-score{font-weight:800; min-width:34px; text-align:right;}
+.synth-row.row-win .synth-score{color:var(--home);}
+.synth-row.row-loss .synth-score{color:var(--danger);}
+
+.stats-filters{display:flex; justify-content:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+.stats-filters select{
+  font:inherit; font-weight:600; padding:6px 10px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card); color:var(--ink);
+}
+.stats-section{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px;}
+.stats-section h3{margin:0 0 10px; font-size:1rem;}
+.stat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px;}
+.stat-card{background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; display:flex; flex-direction:column; align-items:center; gap:2px;}
+.stat-card.win{border-color:var(--home);}
+.stat-card.loss{border-color:var(--danger);}
+.stat-num{font-size:1.25rem; font-weight:800;}
+.stat-label{font-size:.72rem; color:var(--sub); text-align:center;}
+.stat-bar-row{display:flex; align-items:center; gap:8px; margin:6px 0; font-size:.82rem;}
+.stat-bar-label{flex:0 0 120px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.stat-bar-track{flex:1; height:10px; background:var(--line); border-radius:999px; overflow:hidden;}
+.stat-bar-fill{height:100%; background:var(--accent); border-radius:999px;}
+.stat-bar-val{flex:0 0 40px; text-align:right; font-weight:700;}
+.stats-table{width:100%; border-collapse:collapse; font-size:.82rem; margin-top:6px;}
+.stats-table th, .stats-table td{padding:5px 6px; border-bottom:1px solid var(--line); text-align:center;}
+.stats-table th{color:var(--sub); font-weight:600;}
+.stats-table td:first-child, .stats-table th:first-child{text-align:left;}
+.stats-table tr.critico{background:rgba(192,57,43,.08);}
+.chart-title{font-size:.78rem; color:var(--sub); margin:10px 0 4px;}
+.chart-wrap{overflow-x:auto; max-width:100%;}
+.chart-svg{display:block; height:150px; min-width:100%;}
+.ma-control{font-size:.8rem; color:var(--sub); text-align:center; margin-bottom:4px;}
+.ma-control select{font:inherit; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); padding:2px 6px;}
+.h2h-item{border-bottom:1px solid var(--line);}
+.h2h-item:last-child{border-bottom:none;}
+.h2h-head{
+  width:100%; background:transparent; color:var(--ink); display:flex; justify-content:space-between;
+  padding:10px 2px; font-weight:600; text-align:left;
+}
+.h2h-record{color:var(--sub); font-weight:600;}
+.h2h-history{padding:0 2px 10px;}
+.h2h-row{display:flex; justify-content:space-between; gap:8px; font-size:.8rem; padding:4px 0; color:var(--sub);}
+.h2h-row .won{color:var(--home); font-weight:700;}
+.h2h-row .lost{color:var(--danger); font-weight:700;}
+.h2h-sets{color:var(--sub); font-size:.75rem;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏐 ASD Green Volley — U14F</h1>
+  <p>Calendario campionato e risultati</p>
+  <div class="view-toggle">
+    <button id="btn-lista" onclick="setView('lista')">Lista</button>
+    <button id="btn-calendario" onclick="setView('calendario')">Calendario</button>
+    <button id="btn-statistiche" onclick="setView('statistiche')">Statistiche</button>
+    <button id="btn-sintetica" onclick="setView('sintetica')">Lista sintetica</button>
+  </div>
+  <div class="filter-bar">
+    <select id="season-select" onchange="onSeasonChange(this.value)"></select>
+    <div class="camp-filter" id="camp-filter"></div>
+  </div>
+</header>
+<main id="main"></main>
+<div id="status"><span id="status-text"></span></div>
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-sheet" id="modal-sheet"></div>
+</div>
+
+<script id="match-data" type="application/json">
+[{"n": "s2026_2027_fipav_u14f_14243", "giornata": 1, "data": "2026-10-11", "ora": "15:00", "casa": "ASD GREEN VOLLEY", "trasferta": "CAPOLONA-SUBBIANO PALLAVOLO", "impianto": "PALAZZETTO SPORT LEVANE", "indirizzo": "VIA TOGLIATTI LOC LEVANE", "citta": "Bucine", "prov": "AR", "risultato": {"sets": [{"gv": 12, "opp": 25}, {"gv": 25, "opp": 10}, {"gv": 25, "opp": 10}, {"gv": 25, "opp": 12}], "score": "3-1", "esito": "V", "note": "12-25, 25-10, 25-10, 25-12"}, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14245", "giornata": 2, "data": "2026-10-18", "ora": "14:30", "casa": "CLUB AREZZO 14F 2013 ROSA", "trasferta": "ASD GREEN VOLLEY", "impianto": "PALAZZETTO MACCAGNOLO", "indirizzo": "VIA JAMES COOK 1", "citta": "Arezzo", "prov": "AR", "risultato": {"sets": [{"gv": 25, "opp": 12}, {"gv": 25, "opp": 22}, {"gv": 15, "opp": 25}, {"gv": 25, "opp": 22}], "score": "3-1", "esito": "V", "note": "25-12, 25-22, 15-25, 25-22"}, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14249", "giornata": 3, "data": "2026-10-25", "ora": "15:00", "casa": "ASD GREEN VOLLEY", "trasferta": "U14 SAVINESE PINK", "impianto": "PALAZZETTO SPORT LEVANE", "indirizzo": "VIA TOGLIATTI LOC LEVANE", "citta": "Bucine", "prov": "AR", "risultato": {"sets": [{"gv": 25, "opp": 22}, {"gv": 25, "opp": 21}, {"gv": 25, "opp": 16}], "score": "3-0", "esito": "V", "note": "25-22, 25-21, 25-16"}, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14256", "giornata": 5, "data": "2026-11-07", "ora": "17:30", "casa": "VALDARNO PROJECT MONTEVARCHI BLU", "trasferta": "ASD GREEN VOLLEY", "impianto": "IMPIANTO POLIVALENTE PALESTRA N.2", "indirizzo": "VIALE MATTEOTTI 45/6", "citta": "Montevarchi", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14259", "giornata": 6, "data": "2026-11-15", "ora": "15:00", "casa": "ASD GREEN VOLLEY", "trasferta": "CASSERO 14", "impianto": "PALAZZETTO SPORT LEVANE", "indirizzo": "VIA TOGLIATTI LOC LEVANE", "citta": "Bucine", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14261", "giornata": 7, "data": "2026-11-21", "ora": "18:00", "casa": "GIOTTI VICTORIA VOLLEY U14", "trasferta": "ASD GREEN VOLLEY", "impianto": "PALAZZETTO DELLO SPORT A.FROSALI", "indirizzo": "VIA G. MAZZINI 75, STRADA IN CHIANTI", "citta": "Greve in Chianti", "prov": "FI", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14264", "giornata": 8, "data": "2026-11-29", "ora": "11:00", "casa": "CAPOLONA-SUBBIANO PALLAVOLO", "trasferta": "ASD GREEN VOLLEY", "impianto": "PALESTRA CONSORTILE", "indirizzo": "VIALE DANTE 76", "citta": "Capolona", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14266", "giornata": 9, "data": "2026-12-06", "ora": "15:00", "casa": "ASD GREEN VOLLEY", "trasferta": "CLUB AREZZO 14F 2013 ROSA", "impianto": "PALAZZETTO SPORT LEVANE", "indirizzo": "VIA TOGLIATTI LOC LEVANE", "citta": "Bucine", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14270", "giornata": 10, "data": "2026-12-13", "ora": "10:30", "casa": "U14 SAVINESE PINK", "trasferta": "ASD GREEN VOLLEY", "impianto": "PALESTRA GHEZZI", "indirizzo": "VIA MODESTA ROSSA 150", "citta": "Monte San Savino", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14277", "giornata": 12, "data": "2027-01-06", "ora": "15:00", "casa": "ASD GREEN VOLLEY", "trasferta": "VALDARNO PROJECT MONTEVARCHI BLU", "impianto": "PALAZZETTO SPORT LEVANE", "indirizzo": "VIA TOGLIATTI LOC LEVANE", "citta": "Bucine", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14280", "giornata": 13, "data": "2027-01-10", "ora": "10:00", "casa": "CASSERO 14", "trasferta": "ASD GREEN VOLLEY", "impianto": "F. MEONI", "indirizzo": "VIA FONTESECCA 190", "citta": "Castiglion Fiorentino", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}, {"n": "s2026_2027_fipav_u14f_14282", "giornata": 14, "data": "2027-01-17", "ora": "15:00", "casa": "ASD GREEN VOLLEY", "trasferta": "GIOTTI VICTORIA VOLLEY U14", "impianto": "PALAZZETTO SPORT LEVANE", "indirizzo": "VIA TOGLIATTI LOC LEVANE", "citta": "Bucine", "prov": "AR", "risultato": null, "stagione": "2026/2027", "campionato": "FIPAV U14F"}]
+</script>
+
+<script>
+// Catturato per primissima cosa: è il sorgente statico pubblicato, usato per
+// ripubblicare la pagina intatta con solo i dati aggiornati (mai il DOM live).
+const ORIGINAL_HTML = document.documentElement.outerHTML;
+
+const TEAM = "ASD GREEN VOLLEY";
+let matches = JSON.parse(document.getElementById('match-data').textContent);
+let writable = true; // ottimistico finché non arriva un rifiuto
+let artifactApi = null;
+
+const CAMP_COLORS = ['#3fa34d','#c98a2c','#3b6fc9','#a03bc9','#c93b5e','#3bb3a3'];
+const allCampionati = [...new Set(matches.map(m=>m.campionato))].sort();
+function campColor(nome){ return CAMP_COLORS[allCampionati.indexOf(nome) % CAMP_COLORS.length]; }
+
+let selectedSeason = null;
+let selectedCampionato = 'tutti';
+
+function getSeasons(){
+  return [...new Set(matches.map(m=>m.stagione))].sort().reverse();
+}
+
+function getCampionatiPerStagione(stagione){
+  return [...new Set(matches.filter(m=>m.stagione===stagione).map(m=>m.campionato))].sort();
+}
+
+function initFilters(){
+  const seasons = getSeasons();
+  selectedSeason = seasons[0]; // l'ultimo anno caricato
+  selectedCampionato = 'tutti';
+  renderFilterBar();
+}
+
+function renderFilterBar(){
+  const seasons = getSeasons();
+  const select = document.getElementById('season-select');
+  select.innerHTML = seasons.map(s=>`<option value="${escapeHtml(s)}" ${s===selectedSeason?'selected':''}>${escapeHtml(s)}</option>`).join('');
+  const camps = getCampionatiPerStagione(selectedSeason);
+  const campFilter = document.getElementById('camp-filter');
+  let pills = `<button class="camp-pill ${selectedCampionato==='tutti'?'active':''}" style="${selectedCampionato==='tutti'?'background:var(--ink)':''}" onclick="onCampChange('tutti')">Tutti</button>`;
+  pills += camps.map(c => {
+    const active = selectedCampionato===c;
+    return `<button class="camp-pill ${active?'active':''}" style="${active?`background:${campColor(c)}`:''}" onclick="onCampChange('${c.replace(/'/g,"\\'")}')">${escapeHtml(c)}</button>`;
+  }).join('');
+  campFilter.innerHTML = pills;
+}
+
+function onSeasonChange(v){
+  selectedSeason = v;
+  selectedCampionato = 'tutti';
+  renderFilterBar();
+  render();
+}
+
+function onCampChange(v){
+  selectedCampionato = v;
+  renderFilterBar();
+  render();
+}
+
+function filteredMatches(){
+  return matches.filter(m => m.stagione === selectedSeason && (selectedCampionato==='tutti' || m.campionato===selectedCampionato));
+}
+
+function todayLocalIso(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtData(iso){
+  const d = new Date(iso+"T00:00:00");
+  const giorni=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+  const mesi=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+  return `${giorni[d.getDay()]} ${d.getDate()} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function nextMatchN(){
+  const today = todayLocalIso();
+  const upcoming = filteredMatches().filter(m=>m.data>=today).sort((a,b)=>a.data.localeCompare(b.data));
+  return upcoming.length ? upcoming[0].n : null;
+}
+
+let view = 'lista';
+let calMonth, calYear;
+function initCalPosition(){
+  const d = new Date();
+  calMonth = d.getMonth();
+  calYear = d.getFullYear();
+}
+
+function setView(v){
+  view = v;
+  document.getElementById('btn-lista').classList.toggle('active', v==='lista');
+  document.getElementById('btn-calendario').classList.toggle('active', v==='calendario');
+  document.getElementById('btn-statistiche').classList.toggle('active', v==='statistiche');
+  document.getElementById('btn-sintetica').classList.toggle('active', v==='sintetica');
+  if(v === 'calendario') initCalPosition();
+  render();
+}
+
+let openForms = new Set(); // numeri partita con form risultato aperto (nuovo o in modifica)
+let confirmingDelete = new Set(); // numeri partita in attesa di conferma eliminazione
+
+function setInputHtml(n, i, existing){
+  const gv = existing && existing[i-1] ? existing[i-1].gv : '';
+  const opp = existing && existing[i-1] ? existing[i-1].opp : '';
+  return `<span class="set-label">Set ${i}</span>
+    <input type="number" min="0" max="99" inputmode="numeric" id="s${i}gv-${n}" value="${gv}" oninput="updateFormLive('${n}')">
+    <input type="number" min="0" max="99" inputmode="numeric" id="s${i}opp-${n}" value="${opp}" oninput="updateFormLive('${n}')">
+    <span class="set-icon" id="icon${i}-${n}"></span>`;
+}
+
+function fmtDataLunga(iso){
+  const d = new Date(iso+"T00:00:00");
+  const giorni=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+  const mesi=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+  return `${giorni[d.getDay()]} ${d.getDate()} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function whatsappUrl(m){
+  const isHome = m.casa === TEAM;
+  const mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(m.indirizzo + ', ' + m.citta + ' ' + m.prov);
+  const righe = [];
+  righe.push(`🏐 *${m.campionato}* — Stagione ${m.stagione}`);
+  righe.push(`Giornata ${m.giornata}`);
+  righe.push('');
+  righe.push(`*${m.casa}* vs *${m.trasferta}*`);
+  righe.push(isHome ? '🏠 Si gioca in casa' : '🚌 Trasferta');
+  righe.push('');
+  righe.push(`📅 ${fmtDataLunga(m.data)}`);
+  righe.push(`🕒 Ore ${m.ora}`);
+  righe.push('');
+  righe.push(`📍 ${m.impianto}`);
+  righe.push(`${m.indirizzo}, ${m.citta} (${m.prov})`);
+  righe.push(`🗺️ Indicazioni: ${mapsUrl}`);
+  if(m.risultato){
+    const r = m.risultato;
+    let totGv = 0, totOpp = 0;
+    righe.push('');
+    righe.push(r.esito === 'V' ? `✅ *VITTORIA ${r.score}*` : `❌ *SCONFITTA ${r.score}*`);
+    (r.sets || []).forEach((s, i) => {
+      totGv += s.gv; totOpp += s.opp;
+      righe.push(`Set ${i+1}: ${s.gv}-${s.opp} ${s.gv > s.opp ? '✓' : '✗'}`);
+    });
+    righe.push(`Totale punti: ${totGv}-${totOpp}`);
+  }
+  return 'https://wa.me/?text=' + encodeURIComponent(righe.join('\n'));
+}
+
+function matchCardHtml(m, isNext){
+  const isHome = m.casa === TEAM;
+  const opponent = isHome ? m.trasferta : m.casa;
+  const badgeClass = isHome ? 'casa' : 'trasferta';
+  const badgeLabel = isHome ? '🏠 Casa' : '🚌 Trasferta';
+  const isOpen = openForms.has(m.n);
+  let resultBlock = '';
+
+  if(m.risultato && !isOpen){
+    const cls = m.risultato.esito === 'V' ? 'win' : 'loss';
+    const esitoText = m.risultato.esito === 'V' ? 'Vittoria' : 'Sconfitta';
+    let totGv = 0, totOpp = 0;
+    const setsRows = (m.risultato.sets || []).map((s, i) => {
+      totGv += s.gv; totOpp += s.opp;
+      const won = s.gv > s.opp;
+      return `<span class="set-label">Set ${i+1}</span><span class="set-val">${s.gv}</span><span class="set-val">${s.opp}</span><span class="set-icon ${won?'won':'lost'}">${won?'✓':'✗'}</span>`;
+    }).join('');
+    resultBlock = `
+      <div class="result-block">
+        <div class="result">
+          <div class="score ${cls}">${esitoText} ${escapeHtml(m.risultato.score)}</div>
+          ${writable ? (confirmingDelete.has(m.n)
+            ? `<div class="actions"><span class="confirm-text">Confermi eliminazione?</span><button class="btn-ghost danger" onclick="deleteResult('${m.n}')">Sì, elimina</button><button class="btn-ghost" onclick="cancelDeleteConfirm('${m.n}')">Annulla</button></div>`
+            : `<div class="actions"><button class="btn-ghost" onclick="editResult('${m.n}')">Modifica</button><button class="btn-ghost danger" onclick="askDeleteConfirm('${m.n}')">Elimina risultato</button></div>`
+          ) : ''}
+        </div>
+        <div class="sets-grid sets-grid-4 readonly">
+          <span></span><span class="sets-head">Green Volley</span><span class="sets-head">${escapeHtml(opponent)}</span><span></span>
+          ${setsRows}
+          <span class="set-label tot">Totale</span><span class="set-val tot">${totGv}</span><span class="set-val tot">${totOpp}</span><span></span>
+        </div>
+      </div>`;
+  } else if(writable && isOpen) {
+    const existing = m.risultato ? m.risultato.sets : null;
+    const rows = [1,2,3,4,5].map(i => setInputHtml(m.n, i, existing)).join('');
+    resultBlock = `
+      <form class="entry open" id="form-${m.n}" onsubmit="return saveResult(event,'${m.n}')">
+        <div class="sets-grid sets-grid-4">
+          <span></span><span class="sets-head">Green Volley</span><span class="sets-head">${escapeHtml(opponent)}</span><span></span>
+          ${rows}
+          <span class="set-label tot">Totale</span><span class="set-val tot" id="totgv-${m.n}">0</span><span class="set-val tot" id="totopp-${m.n}">0</span><span></span>
+        </div>
+        <div class="esito-banner" id="banner-${m.n}"></div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeForm('${m.n}')">Annulla</button>
+          <button type="submit" class="btn-primary">Salva</button>
+        </div>
+      </form>`;
+  } else if(writable) {
+    resultBlock = `
+      <div class="result">
+        <span class="note">Nessun risultato</span>
+        <button class="btn-primary" onclick="openForm('${m.n}')">Aggiungi risultato</button>
+      </div>`;
+  }
+  return `
+    <div class="card ${isNext ? 'next':''}">
+      <div class="row-top">
+        <span class="giornata">Giornata ${m.giornata}</span>
+        <span class="badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+      <span class="camp-badge" style="background:${campColor(m.campionato)}">${escapeHtml(m.campionato)}</span>
+      <div class="data">${fmtData(m.data)} · ${m.ora}</div>
+      <div class="match">Green Volley vs <b>${escapeHtml(opponent)}</b></div>
+      <div class="luogo">${escapeHtml(m.impianto)} — <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.indirizzo + ', ' + m.citta + ' ' + m.prov)}" target="_blank" rel="noopener" class="maps-link">${escapeHtml(m.indirizzo)}, ${escapeHtml(m.citta)} (${m.prov}) 📍</a></div>
+      ${resultBlock}
+      <a class="share-btn" href="${whatsappUrl(m)}" target="_blank" rel="noopener">📲 Condividi su WhatsApp</a>
+    </div>`;
+}
+
+function render(){
+  if(view === 'calendario'){
+    renderCalendar();
+  } else if(view === 'statistiche'){
+    renderStats();
+  } else if(view === 'sintetica'){
+    renderSynth();
+  } else {
+    renderList();
+  }
+}
+
+function renderList(){
+  const main = document.getElementById('main');
+  const nextN = nextMatchN();
+  const sorted = [...filteredMatches()].sort((a,b)=> (a.data+a.ora).localeCompare(b.data+b.ora));
+  let html = '';
+  if(!writable){
+    html += `<p class="readonly-note">Sola lettura: i risultati li può aggiornare chi ha accesso in modifica al link.</p>`;
+  }
+  if(sorted.length === 0){
+    html += `<p class="readonly-note">Nessuna partita per questa selezione.</p>`;
+  }
+  for(const m of sorted){
+    html += matchCardHtml(m, m.n === nextN);
+  }
+  main.innerHTML = html;
+}
+
+function renderCalendar(){
+  const main = document.getElementById('main');
+  const mesi=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+  const dow=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+  const first = new Date(calYear, calMonth, 1);
+  const startOffset = (first.getDay() + 6) % 7; // lunedì=0
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const todayIso = todayLocalIso();
+
+  const byDate = {};
+  for(const m of filteredMatches()){
+    (byDate[m.data] = byDate[m.data] || []).push(m);
+  }
+
+  let cells = '';
+  for(let i=0;i<startOffset;i++) cells += `<div class="cal-day empty"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const iso = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayMatches = byDate[iso];
+    let cls = 'cal-day';
+    let onclick = '';
+    let indicator = '';
+    if(dayMatches && dayMatches.length){
+      cls += ' has-match';
+      onclick = ` onclick="onDayClick('${iso}')"`;
+      if(dayMatches.length === 1){
+        const m0 = dayMatches[0];
+        if(m0.casa !== TEAM) cls += ' trasferta-day';
+        const r = m0.risultato;
+        if(r){
+          cls += r.esito === 'V' ? ' esito-win' : ' esito-loss';
+          indicator = `<span class="result-icon">${r.esito === 'V' ? '✓' : '✗'}</span>`;
+        } else {
+          indicator = `<span class="dot" style="background:${campColor(m0.campionato)}"></span>`;
+        }
+      } else {
+        cls += ' multi-match';
+        indicator = `<span class="ind-row">` + dayMatches.map(m=>{
+          const r = m.risultato;
+          if(r) return `<span class="result-icon ${r.esito==='V'?'won':'lost'}">${r.esito==='V'?'✓':'✗'}</span>`;
+          return `<span class="dot" style="background:${campColor(m.campionato)}"></span>`;
+        }).join('') + `</span>`;
+      }
+    }
+    if(iso === todayIso) cls += ' today';
+    cells += `<div class="${cls}"${onclick}><span>${day}</span>${indicator}</div>`;
+  }
+
+  let html = `
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <div class="cal-nav-center">
+        <h2>${mesi[calMonth]} ${calYear}</h2>
+        <button class="btn-today" onclick="goToday()">Oggi</button>
+      </div>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid">
+      ${dow.map(d=>`<div class="cal-dow">${d}</div>`).join('')}
+      ${cells}
+    </div>
+    <p class="readonly-note" style="margin-top:12px;">✓ vinta · ✗ persa · pallino colorato = campionato, partita ancora da giocare</p>`;
+  main.innerHTML = html;
+}
+
+function onDayClick(iso){
+  const list = filteredMatches().filter(m=>m.data===iso).sort((a,b)=>a.ora.localeCompare(b.ora));
+  if(list.length === 1){ openModal(list[0].n); return; }
+  if(list.length === 0) return;
+  const righe = list.map(m=>{
+    const isHome = m.casa === TEAM;
+    const opp = isHome ? m.trasferta : m.casa;
+    const r = m.risultato;
+    const icon = r ? (r.esito==='V' ? '<span class="set-icon won">✓</span>' : '<span class="set-icon lost">✗</span>') : '<span class="set-icon"></span>';
+    return `<div class="synth-row ${r ? (r.esito==='V'?'row-win':'row-loss') : ''}" onclick="openModal('${m.n}')">
+      <div class="synth-main">
+        <span class="synth-opp">${escapeHtml(opp)}</span>
+        <span class="synth-date">${escapeHtml(m.campionato)} · ore ${m.ora}</span>
+      </div>
+      <span class="synth-ha">${isHome ? '🏠 Casa' : '🚌 Trasf.'}</span>
+      <span class="synth-score">${r ? escapeHtml(r.score) : ''}</span>
+      ${icon}
+    </div>`;
+  }).join('');
+  document.getElementById('modal-sheet').innerHTML =
+    `<button class="modal-close" onclick="closeModal()">Chiudi ✕</button>` +
+    `<p class="chart-title" style="margin-top:0">${fmtDataLunga(iso)} — ${list.length} partite, scegli quale aprire</p>` +
+    `<div class="synth-list">${righe}</div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function goToday(){
+  initCalPosition();
+  renderCalendar();
+}
+
+function changeMonth(delta){
+  calMonth += delta;
+  if(calMonth < 0){ calMonth = 11; calYear--; }
+  if(calMonth > 11){ calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function openModal(n){
+  const m = matches.find(x=>x.n===n);
+  if(!m) return;
+  document.getElementById('modal-sheet').innerHTML =
+    `<button class="modal-close" onclick="closeModal()">Chiudi ✕</button>` +
+    matchCardHtml(m, m.n === nextMatchN());
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function openForm(n){
+  openForms.add(n);
+  render();
+  refreshIfModal(n);
+  setTimeout(()=>updateFormLive(n), 0);
+}
+
+function closeForm(n){
+  openForms.delete(n);
+  render();
+  refreshIfModal(n);
+}
+
+function updateFormLive(n){
+  let totGv = 0, totOpp = 0, setsGv = 0, setsOpp = 0, anyComplete = false;
+  for(let i=1;i<=5;i++){
+    const gvEl = document.getElementById(`s${i}gv-${n}`);
+    const oppEl = document.getElementById(`s${i}opp-${n}`);
+    const iconEl = document.getElementById(`icon${i}-${n}`);
+    if(!gvEl || !oppEl || !iconEl) continue;
+    const gvVal = gvEl.value, oppVal = oppEl.value;
+    if(gvVal !== '' && oppVal !== ''){
+      const gv = parseInt(gvVal,10), opp = parseInt(oppVal,10);
+      totGv += gv; totOpp += opp;
+      const won = gv > opp;
+      if(won) setsGv++; else if(opp > gv) setsOpp++;
+      iconEl.textContent = gv === opp ? '' : (won ? '✓' : '✗');
+      iconEl.className = 'set-icon ' + (gv === opp ? '' : (won ? 'won' : 'lost'));
+      anyComplete = true;
+    } else {
+      iconEl.textContent = '';
+      iconEl.className = 'set-icon';
+    }
+  }
+  const totGvEl = document.getElementById(`totgv-${n}`);
+  const totOppEl = document.getElementById(`totopp-${n}`);
+  if(totGvEl) totGvEl.textContent = totGv;
+  if(totOppEl) totOppEl.textContent = totOpp;
+  const banner = document.getElementById(`banner-${n}`);
+  if(!banner) return;
+  if(!anyComplete){
+    banner.textContent = '';
+    banner.className = 'esito-banner';
+  } else if(setsGv >= 3){
+    banner.textContent = `Vittoria Green Volley (${setsGv}-${setsOpp})`;
+    banner.className = 'esito-banner win';
+  } else if(setsOpp >= 3){
+    banner.textContent = `Sconfitta Green Volley (${setsGv}-${setsOpp})`;
+    banner.className = 'esito-banner loss';
+  } else if(setsGv === setsOpp){
+    banner.textContent = `Parità set (${setsGv}-${setsOpp}) — partita in corso`;
+    banner.className = 'esito-banner draw';
+  } else if(setsGv > setsOpp){
+    banner.textContent = `In vantaggio Green Volley (${setsGv}-${setsOpp})`;
+    banner.className = 'esito-banner win';
+  } else {
+    banner.textContent = `In svantaggio Green Volley (${setsGv}-${setsOpp})`;
+    banner.className = 'esito-banner loss';
+  }
+}
+
+function refreshIfModal(n){
+  if(document.getElementById('modal-overlay').classList.contains('open')){
+    openModal(n);
+  }
+}
+
+function editResult(n){
+  openForms.add(n);
+  render();
+  refreshIfModal(n);
+  setTimeout(()=>updateFormLive(n), 0);
+}
+
+async function deleteResult(n){
+  const m = matches.find(x=>x.n===n);
+  m.risultato = null;
+  confirmingDelete.delete(n);
+  openForms.delete(n);
+  render();
+  refreshIfModal(n);
+  await persist();
+}
+
+function askDeleteConfirm(n){
+  confirmingDelete.add(n);
+  render();
+  refreshIfModal(n);
+}
+
+function cancelDeleteConfirm(n){
+  confirmingDelete.delete(n);
+  render();
+  refreshIfModal(n);
+}
+
+async function saveResult(ev, n){
+  ev.preventDefault();
+  const sets = [];
+  for(let i=1;i<=5;i++){
+    const gvVal = document.getElementById(`s${i}gv-${n}`).value;
+    const oppVal = document.getElementById(`s${i}opp-${n}`).value;
+    if(gvVal === '' && oppVal === '') continue;
+    if(gvVal === '' || oppVal === ''){
+      showStatus(`Compila entrambi i punteggi del Set ${i}`);
+      return false;
+    }
+    sets.push({ gv: parseInt(gvVal,10), opp: parseInt(oppVal,10) });
+  }
+  if(sets.length === 0){
+    showStatus('Inserisci almeno un set');
+    return false;
+  }
+  let setsGv = 0, setsOpp = 0;
+  for(const s of sets){ if(s.gv > s.opp) setsGv++; else if(s.opp > s.gv) setsOpp++; }
+  const m = matches.find(x=>x.n===n);
+  m.risultato = {
+    sets,
+    score: `${setsGv}-${setsOpp}`,
+    esito: setsGv >= 3 ? 'V' : (setsOpp >= 3 ? 'P' : (setsGv > setsOpp ? 'V' : 'P')),
+    note: sets.map(s=>`${s.gv}-${s.opp}`).join(', ')
+  };
+  openForms.delete(n);
+  render();
+  refreshIfModal(n);
+  await persist();
+  return false;
+}
+
+function showStatus(text){
+  const el = document.getElementById('status-text');
+  el.textContent = text;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+async function persist(){
+  try{
+    if(!artifactApi){
+      artifactApi = await window.claude.use('artifact');
+    }
+    if(!artifactApi){ writable = false; render(); return; }
+    // Pubblichiamo la pagina statica originale con solo il JSON aggiornato
+    const openTag = '<' + 'script id="match-data" type="application/json">';
+    const closeTag = '<' + '/script>';
+    const pattern = new RegExp(openTag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + closeTag);
+    const original = ORIGINAL_HTML.replace(
+      pattern,
+      openTag + '\n' + JSON.stringify(matches) + '\n' + closeTag
+    );
+    await artifactApi.publish(original);
+    showStatus('Risultato salvato per tutti');
+  }catch(e){
+    if(e && (e.code === 'not_writer' || e.code === 'not_granted')){
+      writable = false;
+      render();
+      showStatus('Sola lettura: non puoi salvare da qui');
+    } else if (e && e.code === 'conflict'){
+      // un'altra persona ha appena pubblicato: la pagina si ricarica da sola
+    } else {
+      showStatus('Salvataggio non riuscito, riprova');
+    }
+  }
+}
+
+/* ===== STATISTICHE ===== */
+let statSeason = 'tutte';
+let statCampionato = 'tutti';
+let maWindow = 5;
+let expandedOpponent = null;
+
+function pct(a,b){ return b ? Math.round(a/b*1000)/10 : 0; }
+
+function rollingAvg(arr, w){
+  return arr.map((_,i)=>{
+    const start = Math.max(0, i-w+1);
+    const slice = arr.slice(start, i+1);
+    return slice.reduce((a,b)=>a+b,0) / slice.length;
+  });
+}
+
+function chartSvg(seriesList, labels, opts={}){
+  const w = Math.max(320, labels.length*36);
+  const h = opts.height || 150;
+  const padL=26, padR=8, padT=10, padB=18;
+  const innerW=w-padL-padR, innerH=h-padT-padB;
+  let allVals=[];
+  seriesList.forEach(s=>{ allVals=allVals.concat(s.values.filter(v=>v!=null && !isNaN(v))); });
+  let min = opts.min!=null ? opts.min : Math.min(0,...allVals,0);
+  let max = opts.max!=null ? opts.max : Math.max(...allVals,1);
+  if(max===min) max = min+1;
+  const xStep = labels.length>1 ? innerW/(labels.length-1) : 0;
+  const xPos = i => padL + (labels.length>1 ? i*xStep : innerW/2);
+  const yPos = v => padT + innerH - ((v-min)/(max-min))*innerH;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" class="chart-svg" preserveAspectRatio="xMinYMin meet">`;
+  if(min<0 && max>0){
+    const y0=yPos(0);
+    svg += `<line x1="${padL}" y1="${y0}" x2="${w-padR}" y2="${y0}" stroke="var(--line)" stroke-dasharray="2,2"/>`;
+  }
+  seriesList.forEach(s=>{
+    const pts = s.values.map((v,i)=> (v==null||isNaN(v)) ? null : [xPos(i), yPos(v)]);
+    if(s.type==='bar'){
+      const bw = Math.min(16, xStep*0.55) || 10;
+      const y0=yPos(Math.max(min,0));
+      pts.forEach(p=>{ if(!p) return; svg += `<rect x="${p[0]-bw/2}" y="${Math.min(p[1],y0)}" width="${bw}" height="${Math.max(1,Math.abs(p[1]-y0))}" fill="${s.color}" rx="2"/>`; });
+    } else {
+      const valid = pts.map((p,i)=>[p,i]).filter(([p])=>p);
+      const path = valid.map(([p],idx)=> (idx===0?'M':'L')+p[0]+','+p[1]).join(' ');
+      svg += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="2"${s.dashed?' stroke-dasharray="5,4"':''}/>`;
+      if(s.dots!==false) valid.forEach(([p])=>{ svg += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${s.color}"/>`; });
+    }
+  });
+  const step = Math.max(1, Math.ceil(labels.length/8));
+  labels.forEach((l,i)=>{ if(i%step===0 || i===labels.length-1) svg += `<text x="${xPos(i)}" y="${h-4}" font-size="8" fill="var(--sub)" text-anchor="middle">${l}</text>`; });
+  svg += '</svg>';
+  return `<div class="chart-wrap">${svg}</div>`;
+}
+
+function statBar(label, percent, color){
+  return `<div class="stat-bar-row">
+    <span class="stat-bar-label">${escapeHtml(label)}</span>
+    <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${percent}%;background:${color||'var(--accent)'}"></div></div>
+    <span class="stat-bar-val">${percent}%</span>
+  </div>`;
+}
+
+function matchPoints(m){
+  return m.risultato.sets.reduce((acc,s)=>{ acc.gv+=s.gv; acc.opp+=s.opp; return acc; }, {gv:0,opp:0});
+}
+
+function statsPool(){
+  return matches.filter(m =>
+    (statSeason==='tutte' || m.stagione===statSeason) &&
+    (statCampionato==='tutti' || m.campionato===statCampionato) &&
+    m.risultato
+  ).sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
+}
+
+function onStatSeasonChange(v){ statSeason=v; expandedOpponent=null; renderStats(); }
+function onStatCampChange(v){ statCampionato=v; expandedOpponent=null; renderStats(); }
+function onMaChange(v){ maWindow=parseInt(v,10); renderStats(); }
+function toggleOpponent(opp){ expandedOpponent = expandedOpponent===opp ? null : opp; renderStats(); }
+
+function renderStatsSummary(pool){
+  const n=pool.length;
+  const vittorie=pool.filter(m=>m.risultato.esito==='V').length;
+  let setsW=0,setsL=0,puntiF=0,puntiS=0;
+  pool.forEach(m=>m.risultato.sets.forEach(s=>{ puntiF+=s.gv; puntiS+=s.opp; if(s.gv>s.opp) setsW++; else setsL++; }));
+  return `<div class="stats-section">
+    <h3>Riepilogo generale</h3>
+    <div class="stat-grid">
+      <div class="stat-card"><span class="stat-num">${n}</span><span class="stat-label">Partite</span></div>
+      <div class="stat-card win"><span class="stat-num">${vittorie}</span><span class="stat-label">Vittorie</span></div>
+      <div class="stat-card loss"><span class="stat-num">${n-vittorie}</span><span class="stat-label">Sconfitte</span></div>
+      <div class="stat-card"><span class="stat-num">${pct(vittorie,n)}%</span><span class="stat-label">% Vittorie</span></div>
+      <div class="stat-card"><span class="stat-num">${setsW}-${setsL}</span><span class="stat-label">Set vinti-persi</span></div>
+      <div class="stat-card"><span class="stat-num">${(setsW/n).toFixed(1)}</span><span class="stat-label">Set vinti/partita</span></div>
+      <div class="stat-card"><span class="stat-num">${puntiF}-${puntiS}</span><span class="stat-label">Punti fatti-subiti</span></div>
+      <div class="stat-card"><span class="stat-num">${(puntiF/n).toFixed(0)}-${(puntiS/n).toFixed(0)}</span><span class="stat-label">Punti medi/partita</span></div>
+    </div>
+  </div>`;
+}
+
+function renderStatsTrend(pool){
+  const labels = pool.map(m=>{ const d=new Date(m.data+"T00:00:00"); return d.getDate()+'/'+(d.getMonth()+1); });
+  const esiti = pool.map(m=>m.risultato.esito==='V'?1:0);
+  const winMa = rollingAvg(esiti, maWindow);
+  const puntiF = pool.map(m=>matchPoints(m).gv);
+  const puntiS = pool.map(m=>matchPoints(m).opp);
+  const diff = pool.map((_,i)=>puntiF[i]-puntiS[i]);
+  const diffMa = rollingAvg(diff, maWindow);
+  const setsVinti = pool.map(m=>m.risultato.sets.filter(s=>s.gv>s.opp).length);
+  const setsMa = rollingAvg(setsVinti, maWindow);
+  return `<div class="stats-section">
+    <h3>Andamento nel tempo</h3>
+    <div class="ma-control">Media mobile su
+      <select onchange="onMaChange(this.value)">${[3,5,10].map(v=>`<option value="${v}" ${v===maWindow?'selected':''}>${v} partite</option>`).join('')}</select>
+    </div>
+    <p class="chart-title">Esito partite (1=vittoria) e % vittorie mobile</p>
+    ${chartSvg([{values:esiti,color:'var(--home)',type:'line'},{values:winMa,color:'#3b6fc9',dashed:true,dots:false}], labels, {min:0,max:1})}
+    <p class="chart-title">Punti fatti (verde) vs subiti (rosso) per partita</p>
+    ${chartSvg([{values:puntiF,color:'var(--home)'},{values:puntiS,color:'var(--danger)'}], labels)}
+    <p class="chart-title">Differenza punti e media mobile</p>
+    ${chartSvg([{values:diff,color:'var(--sub)',type:'bar'},{values:diffMa,color:'#3b6fc9',dashed:true,dots:false}], labels)}
+    <p class="chart-title">Set vinti a partita e media mobile</p>
+    ${chartSvg([{values:setsVinti,color:'var(--home)',type:'bar'},{values:setsMa,color:'#3b6fc9',dashed:true,dots:false}], labels, {min:0,max:5})}
+  </div>`;
+}
+
+function renderStatsHomeAway(pool){
+  const casa = pool.filter(m=>m.casa===TEAM);
+  const trasf = pool.filter(m=>m.trasferta===TEAM);
+  const wCasa = casa.filter(m=>m.risultato.esito==='V').length;
+  const wTrasf = trasf.filter(m=>m.risultato.esito==='V').length;
+  const avg=(arr,f)=> arr.length ? (arr.reduce((a,m)=>a+f(m),0)/arr.length).toFixed(1) : '–';
+  return `<div class="stats-section">
+    <h3>Casa vs Trasferta</h3>
+    ${statBar('🏠 Casa ('+casa.length+')', pct(wCasa,casa.length), 'var(--home)')}
+    ${statBar('🚌 Trasferta ('+trasf.length+')', pct(wTrasf,trasf.length), 'var(--away)')}
+    <table class="stats-table">
+      <tr><th></th><th>🏠 Casa</th><th>🚌 Trasferta</th></tr>
+      <tr><td>Punti fatti medi</td><td>${avg(casa,m=>matchPoints(m).gv)}</td><td>${avg(trasf,m=>matchPoints(m).gv)}</td></tr>
+      <tr><td>Punti subiti medi</td><td>${avg(casa,m=>matchPoints(m).opp)}</td><td>${avg(trasf,m=>matchPoints(m).opp)}</td></tr>
+      <tr><td>Set vinti medi</td><td>${avg(casa,m=>m.risultato.sets.filter(s=>s.gv>s.opp).length)}</td><td>${avg(trasf,m=>m.risultato.sets.filter(s=>s.gv>s.opp).length)}</td></tr>
+    </table>
+  </div>`;
+}
+
+function renderStatsBySet(pool){
+  const perSet = [1,2,3,4,5].map(i=>{
+    let w=0,l=0,sumGv=0,sumOpp=0,n=0;
+    pool.forEach(m=>{ const s=m.risultato.sets[i-1]; if(s){ n++; sumGv+=s.gv; sumOpp+=s.opp; if(s.gv>s.opp) w++; else l++; } });
+    return {i,w,l,n, avgGv:n?(sumGv/n).toFixed(1):'–', avgOpp:n?(sumOpp/n).toFixed(1):'–', ratio:(w+l)?w/(w+l):null};
+  });
+  const tieBreak = perSet[4];
+  const withSample = perSet.filter(s=>s.ratio!=null);
+  const critico = withSample.length ? withSample.reduce((a,b)=> b.ratio<a.ratio?b:a) : null;
+  return `<div class="stats-section">
+    <h3>Analisi per set</h3>
+    <table class="stats-table">
+      <tr><th>Set</th><th>Vinti</th><th>Persi</th><th>Media fatti</th><th>Media subiti</th></tr>
+      ${perSet.map(s=>`<tr class="${critico && s.i===critico.i?'critico':''}"><td>${s.i}°${critico && s.i===critico.i?' ⚠️':''}</td><td>${s.w}</td><td>${s.l}</td><td>${s.avgGv}</td><td>${s.avgOpp}</td></tr>`).join('')}
+    </table>
+    ${critico ? `<p class="readonly-note">Set più critico: <b>${critico.i}°</b> (vinto il ${Math.round(critico.ratio*100)}% delle volte)</p>` : ''}
+    <p class="readonly-note">Partite al tie-break (5° set): ${tieBreak.n} — bilancio ${tieBreak.w}V-${tieBreak.l}P</p>
+  </div>`;
+}
+
+function renderStatsHeadToHead(pool){
+  const byOpp = {};
+  pool.forEach(m=>{
+    const opp = m.casa===TEAM ? m.trasferta : m.casa;
+    (byOpp[opp] = byOpp[opp] || []).push(m);
+  });
+  const rows = Object.keys(byOpp).sort().map(opp=>{
+    const list = byOpp[opp];
+    const w = list.filter(m=>m.risultato.esito==='V').length;
+    const open = expandedOpponent===opp;
+    const history = open ? `<div class="h2h-history">${list.map(m=>{
+      const dett = m.risultato.sets.map(s=>s.gv+'-'+s.opp).join(', ');
+      return `<div class="h2h-row"><span>${fmtData(m.data)}</span><span class="${m.risultato.esito==='V'?'won':'lost'}">${m.risultato.score}</span><span class="h2h-sets">${dett}</span></div>`;
+    }).join('')}</div>` : '';
+    return `<div class="h2h-item">
+      <button class="h2h-head" onclick="toggleOpponent('${opp.replace(/'/g,"\\'")}')">
+        <span>${escapeHtml(opp)}</span><span class="h2h-record">${w}V - ${list.length-w}P</span>
+      </button>
+      ${history}
+    </div>`;
+  }).join('');
+  return `<div class="stats-section"><h3>Scontri diretti</h3>${rows}</div>`;
+}
+
+function renderStatsCompare(pool){
+  let html = `<div class="stats-section"><h3>Confronto stagioni e campionati</h3>`;
+  if(statSeason==='tutte'){
+    const seasons=[...new Set(pool.map(m=>m.stagione))].sort();
+    html += `<p class="chart-title">% vittorie per stagione</p>` + seasons.map(s=>{
+      const sub=pool.filter(m=>m.stagione===s);
+      return statBar(s, pct(sub.filter(m=>m.risultato.esito==='V').length, sub.length));
+    }).join('');
+  }
+  if(statCampionato==='tutti'){
+    const camps=[...new Set(pool.map(m=>m.campionato))].sort();
+    html += `<p class="chart-title">% vittorie per campionato</p>` + camps.map(c=>{
+      const sub=pool.filter(m=>m.campionato===c);
+      return statBar(c, pct(sub.filter(m=>m.risultato.esito==='V').length, sub.length), campColor(c));
+    }).join('');
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderStats(){
+  const main = document.getElementById('main');
+  const allSeasons = getSeasons();
+  const campPool = matches.filter(m=> statSeason==='tutte' || m.stagione===statSeason);
+  const allCamps = [...new Set(campPool.map(m=>m.campionato))].sort();
+
+  let html = `<div class="stats-filters">
+    <select onchange="onStatSeasonChange(this.value)">
+      <option value="tutte" ${statSeason==='tutte'?'selected':''}>Tutte le stagioni</option>
+      ${allSeasons.map(s=>`<option value="${escapeHtml(s)}" ${s===statSeason?'selected':''}>${escapeHtml(s)}</option>`).join('')}
+    </select>
+    <select onchange="onStatCampChange(this.value)">
+      <option value="tutti" ${statCampionato==='tutti'?'selected':''}>Tutti i campionati</option>
+      ${allCamps.map(c=>`<option value="${escapeHtml(c)}" ${c===statCampionato?'selected':''}>${escapeHtml(c)}</option>`).join('')}
+    </select>
+  </div>`;
+
+  const pool = statsPool();
+  if(pool.length===0){
+    html += `<p class="readonly-note">Nessuna partita giocata per questa selezione.</p>`;
+    main.innerHTML = html;
+    return;
+  }
+  html += renderStatsSummary(pool);
+  html += renderStatsTrend(pool);
+  html += renderStatsHomeAway(pool);
+  html += renderStatsBySet(pool);
+  html += renderStatsHeadToHead(pool);
+  if(statSeason==='tutte' || statCampionato==='tutti') html += renderStatsCompare(pool);
+  main.innerHTML = html;
+}
+
+/* ===== LISTA SINTETICA ===== */
+let synthSeason = null;
+let synthCamp = 'tutti';
+
+function onSynthSeason(v){ synthSeason = v; synthCamp = 'tutti'; renderSynth(); }
+function onSynthCamp(v){ synthCamp = v; renderSynth(); }
+
+function renderSynth(){
+  const main = document.getElementById('main');
+  const seasons = getSeasons();
+  if(synthSeason === null) synthSeason = seasons[0];
+  const campPool = matches.filter(m => synthSeason==='tutte' || m.stagione===synthSeason);
+  const camps = [...new Set(campPool.map(m=>m.campionato))].sort();
+  if(synthCamp !== 'tutti' && !camps.includes(synthCamp)) synthCamp = 'tutti';
+
+  const pool = campPool
+    .filter(m => synthCamp==='tutti' || m.campionato===synthCamp)
+    .sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
+
+  const giocate = pool.filter(m=>m.risultato);
+  const daGiocare = pool.filter(m=>!m.risultato);
+  const vinte = giocate.filter(m=>m.risultato.esito==='V').length;
+  let puntiF = 0, puntiS = 0;
+  giocate.forEach(m=>{ const p = matchPoints(m); puntiF += p.gv; puntiS += p.opp; });
+
+  let html = `<div class="stats-filters">
+    <select onchange="onSynthSeason(this.value)">
+      <option value="tutte" ${synthSeason==='tutte'?'selected':''}>Tutte le stagioni</option>
+      ${seasons.map(s=>`<option value="${escapeHtml(s)}" ${s===synthSeason?'selected':''}>${escapeHtml(s)}</option>`).join('')}
+    </select>
+    <select onchange="onSynthCamp(this.value)">
+      <option value="tutti" ${synthCamp==='tutti'?'selected':''}>Tutti i campionati</option>
+      ${camps.map(c=>`<option value="${escapeHtml(c)}" ${c===synthCamp?'selected':''}>${escapeHtml(c)}</option>`).join('')}
+    </select>
+  </div>
+  <div class="stat-grid synth-summary">
+    <div class="stat-card"><span class="stat-num">${giocate.length}</span><span class="stat-label">Giocate</span></div>
+    <div class="stat-card"><span class="stat-num">${daGiocare.length}</span><span class="stat-label">Da giocare</span></div>
+    <div class="stat-card"><span class="stat-num">${daGiocare.filter(m=>m.casa===TEAM).length}</span><span class="stat-label">Da giocare in casa</span></div>
+    <div class="stat-card"><span class="stat-num">${daGiocare.filter(m=>m.casa!==TEAM).length}</span><span class="stat-label">Da giocare in trasferta</span></div>
+    <div class="stat-card win"><span class="stat-num">${vinte}</span><span class="stat-label">Vinte</span></div>
+    <div class="stat-card loss"><span class="stat-num">${giocate.length-vinte}</span><span class="stat-label">Perse</span></div>
+    <div class="stat-card"><span class="stat-num">${puntiF}</span><span class="stat-label">Punti fatti</span></div>
+    <div class="stat-card"><span class="stat-num">${puntiS}</span><span class="stat-label">Punti subiti</span></div>
+  </div>`;
+
+  if(pool.length === 0){
+    html += `<p class="readonly-note">Nessuna partita per questa selezione.</p>`;
+    main.innerHTML = html;
+    return;
+  }
+
+  html += `<div class="synth-list">` + pool.map(m=>{
+    const isHome = m.casa === TEAM;
+    const opp = isHome ? m.trasferta : m.casa;
+    const r = m.risultato;
+    const score = r ? escapeHtml(r.score) : '';
+    const icon = r ? (r.esito==='V' ? '<span class="set-icon won">✓</span>' : '<span class="set-icon lost">✗</span>') : '<span class="set-icon"></span>';
+    return `<div class="synth-row ${r ? (r.esito==='V'?'row-win':'row-loss') : ''}" onclick="openModal('${m.n}')">
+      <div class="synth-main">
+        <span class="synth-opp">${escapeHtml(opp)}</span>
+        <span class="synth-date">${fmtData(m.data)} · ${m.ora}</span>
+      </div>
+      <span class="synth-ha">${isHome ? '🏠 Casa' : '🚌 Trasf.'}</span>
+      <span class="synth-score">${score}</span>
+      ${icon}
+    </div>`;
+  }).join('') + `</div>`;
+  main.innerHTML = html;
+}
+
+document.getElementById('btn-lista').classList.add('active');
+initFilters();
+initCalPosition();
+render();
+</script>
+</body>
+</html>
