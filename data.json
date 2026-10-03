@@ -25,29 +25,7 @@
     "indirizzo": "VIA JAMES COOK 1",
     "citta": "Arezzo",
     "prov": "AR",
-    "risultato": {
-      "sets": [
-        {
-          "gv": 25,
-          "opp": 12
-        },
-        {
-          "gv": 25,
-          "opp": 22
-        },
-        {
-          "gv": 15,
-          "opp": 25
-        },
-        {
-          "gv": 25,
-          "opp": 22
-        }
-      ],
-      "score": "3-1",
-      "esito": "V",
-      "note": "25-12, 25-22, 15-25, 25-22"
-    },
+    "risultato": null,
     "stagione": "2026/2027",
     "campionato": "FIPAV U14F"
   },
