@@ -264,10 +264,7 @@ form.entry .sets-grid input{
     <select id="season-select" onchange="onSeasonChange(this.value)"></select>
     <div class="camp-filter" id="camp-filter"></div>
   </div>
-  <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-    <button class="export-btn" onclick="loadFromApi(true)">🔄 Aggiorna dati</button>
-    <button class="export-btn" onclick="exportCsv()">⬇️ Esporta tutto in CSV</button>
-  </div>
+  <button class="export-btn" onclick="exportCsv()">⬇️ Esporta tutto in CSV</button>
 </header>
 <div id="install-banner" class="install-banner" style="display:none;"></div>
 <main id="main"></main>
@@ -283,9 +280,12 @@ form.entry .sets-grid input{
 <script>
 // Catturato per primissima cosa: è il sorgente statico pubblicato, usato per
 // ripubblicare la pagina intatta con solo i dati aggiornati (mai il DOM live).
+const ORIGINAL_HTML = document.documentElement.outerHTML;
+
 const TEAM = "ASD GREEN VOLLEY";
 let matches = JSON.parse(document.getElementById('match-data').textContent);
 let writable = true; // ottimistico finché non arriva un rifiuto
+let artifactApi = null;
 
 const CAMP_COLORS = ['#3fa34d','#c98a2c','#3b6fc9','#a03bc9','#c93b5e','#3bb3a3'];
 const allCampionati = [...new Set(matches.map(m=>m.campionato))].sort();
@@ -780,48 +780,32 @@ function showStatus(text){
   setTimeout(()=>el.classList.remove('show'), 2200);
 }
 
-// ===== DATI CONDIVISI TRAMITE /api/data (Vercel + GitHub) =====
-// L'endpoint /api/data.js legge e scrive data.json nel repo GitHub via Octokit.
-// Usiamo un percorso relativo: funziona automaticamente sul dominio Vercel
-// a cui è collegato questo stesso progetto, niente da configurare qui.
-const API_URL = '/api/data';
-let currentSha = null; // "sha" del file data.json su GitHub, serve per evitare sovrascritture
-
-async function loadFromApi(showMsg){
-  try{
-    const res = await fetch(API_URL);
-    if(!res.ok) throw new Error('http '+res.status);
-    const payload = await res.json();
-    if(Array.isArray(payload.data)){
-      matches = payload.data;
-      currentSha = payload.sha;
-      render();
-      if(showMsg) showStatus('Dati aggiornati');
-    }
-  }catch(e){
-    if(showMsg) showStatus('Impossibile aggiornare i dati, riprova');
-  }
-}
-
 async function persist(){
   try{
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newData: matches, sha: currentSha })
-    });
-    const payload = await res.json().catch(()=>({}));
-    if(!res.ok){
-      // Probabile conflitto: un altro utente ha salvato nel frattempo (sha non più valido).
-      // Ricarichiamo i dati più recenti; la modifica andrà reinserita.
-      await loadFromApi(false);
-      showStatus('Qualcun altro ha salvato nel frattempo: dati aggiornati, riprova a inserire');
-      return;
+    if(!artifactApi){
+      artifactApi = await window.claude.use('artifact');
     }
-    currentSha = payload.sha;
+    if(!artifactApi){ writable = false; render(); return; }
+    // Pubblichiamo la pagina statica originale con solo il JSON aggiornato
+    const openTag = '<' + 'script id="match-data" type="application/json">';
+    const closeTag = '<' + '/script>';
+    const pattern = new RegExp(openTag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + closeTag);
+    const original = ORIGINAL_HTML.replace(
+      pattern,
+      openTag + '\n' + JSON.stringify(matches) + '\n' + closeTag
+    );
+    await artifactApi.publish(original);
     showStatus('Risultato salvato per tutti');
   }catch(e){
-    showStatus('Salvataggio non riuscito, riprova');
+    if(e && (e.code === 'not_writer' || e.code === 'not_granted')){
+      writable = false;
+      render();
+      showStatus('Sola lettura: non puoi salvare da qui');
+    } else if (e && e.code === 'conflict'){
+      // un'altra persona ha appena pubblicato: la pagina si ricarica da sola
+    } else {
+      showStatus('Salvataggio non riuscito, riprova');
+    }
   }
 }
 
@@ -1136,6 +1120,7 @@ function renderSynth(){
 }
 
 /* ===== Esportazione CSV ===== */
+let downloadsApi = null;
 
 function csvEscape(v){
   const s = v==null ? '' : String(v);
@@ -1166,18 +1151,17 @@ function buildCsv(){
   return '\uFEFF' + [header.map(csvEscape).join(';'), ...rows].join('\n');
 }
 
-function exportCsv(){
-  const csv = buildCsv();
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'green-volley-partite.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showStatus('CSV scaricato');
+async function exportCsv(){
+  try{
+    if(!downloadsApi) downloadsApi = await window.claude.use('downloads');
+    if(!downloadsApi){ showStatus('Esportazione non disponibile qui'); return; }
+    const csv = buildCsv();
+    await downloadsApi.save({ filename: 'green-volley-partite.csv', data: csv });
+    showStatus('CSV scaricato');
+  }catch(e){
+    if(e && e.code === 'declined') return;
+    showStatus('Esportazione non riuscita, riprova');
+  }
 }
 
 /* ===== Installazione come app ===== */
@@ -1212,9 +1196,6 @@ document.getElementById('btn-lista').classList.add('active');
 initFilters();
 initCalPosition();
 render();
-
-loadFromApi(false).then(()=>{ initFilters(); initCalPosition(); render(); });
-setInterval(()=>loadFromApi(false), 20000); // auto-refresh ogni 20s
 </script>
 </body>
 </html>
