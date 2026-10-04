@@ -602,7 +602,7 @@ function matchCardHtml(m, isNext){
   } else {
     infoBlock = `
       <div class="data">${fmtData(m.data)} · ${m.ora} ${weatherButtonHtml(m)}</div>
-      <div class="match">vs <b>${escapeHtml(opponent)}</b></div>
+      <div class="match"><b>${escapeHtml(opponent)}</b></div>
       <div class="luogo">${escapeHtml(m.impianto)} — <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.indirizzo + ', ' + m.citta + ' ' + m.prov)}" target="_blank" rel="noopener" class="maps-link">${escapeHtml(m.indirizzo)}, ${escapeHtml(m.citta)} (${m.prov}) 📍</a></div>
       <div class="like-edit-row">
         <div class="like-bar">${likeButtons}</div>
