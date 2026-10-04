@@ -84,6 +84,17 @@ header{
 }
 .like-btn.active-like{border-color:var(--home); color:var(--home); background:rgba(63,163,77,.12);}
 .like-btn.active-unlike{border-color:var(--danger); color:var(--danger); background:rgba(192,57,43,.12);}
+
+.ticker-wrap{
+  overflow:hidden; white-space:nowrap; background:var(--card); border-bottom:1px solid var(--line);
+  padding:5px 0;
+}
+.ticker-track{display:inline-flex; will-change:transform; animation:ticker-scroll 30s linear infinite;}
+.ticker-track span{padding-right:48px; font-size:.76rem; color:var(--ink); font-weight:600;}
+@keyframes ticker-scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+@media (prefers-reduced-motion: reduce){
+  .ticker-track{animation:none;}
+}
 header h1{margin:0; font-size:1.25rem;}
 header p{margin:4px 0 0; color:var(--sub); font-size:.85rem;}
 main{max-width:640px; margin:0 auto; padding:14px 12px 40px;}
@@ -311,6 +322,7 @@ form.entry .sets-grid input{
     <div class="camp-filter" id="camp-filter"></div>
   </div>
 </header>
+<div class="ticker-wrap"><div class="ticker-track" id="ticker-track"></div></div>
 <div id="install-banner" class="install-banner" style="display:none;"></div>
 
 <div class="side-menu-overlay" id="side-menu-overlay" onclick="if(event.target===this)toggleSideMenu(false)">
@@ -585,6 +597,61 @@ function matchCardHtml(m, isNext){
     </div>`;
 }
 
+/* ===== Banner scorrevole ===== */
+function nextMatchGlobal(){
+  const today = todayLocalIso();
+  const upcoming = matches.filter(m=>m.data>=today).sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
+  return upcoming[0] || null;
+}
+
+function lastPlayedGlobal(){
+  const played = matches.filter(m=>m.risultato).sort((a,b)=>(b.data+b.ora).localeCompare(a.data+a.ora));
+  return played[0] || null;
+}
+
+function buildTickerSegments(){
+  const segs = [];
+
+  const next = nextMatchGlobal();
+  if(next){
+    const isHome = next.casa===TEAM;
+    const opp = isHome ? next.trasferta : next.casa;
+    segs.push(`⏭️ Prossima: vs ${escapeHtml(opp)} — ${fmtData(next.data)} ore ${next.ora} @ ${escapeHtml(next.impianto)}`);
+  }
+
+  const last = lastPlayedGlobal();
+  if(last){
+    const isHome = last.casa===TEAM;
+    const opp = isHome ? last.trasferta : last.casa;
+    const esitoTxt = last.risultato.esito==='V' ? 'Vittoria' : 'Sconfitta';
+    segs.push(`🏐 Ultima: vs ${escapeHtml(opp)} — ${esitoTxt} ${escapeHtml(last.risultato.score)}`);
+  }
+
+  if(selectedSeason){
+    const badgePool = matches
+      .filter(m=> m.stagione===selectedSeason && (selectedCampionato==='tutti' || m.campionato===selectedCampionato) && m.risultato)
+      .sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
+    computeBadges(badgePool).forEach(b=>{
+      segs.push(`${b.icon} ${b.titolo}: ${b.valore}${b.dettaglio ? ' — '+b.dettaglio : ''}`);
+    });
+  }
+
+  segs.push('🏐 Presenti comunque e dovunque — Curva budini molli');
+  return segs;
+}
+
+function updateTicker(){
+  const track = document.getElementById('ticker-track');
+  if(!track) return;
+  const text = buildTickerSegments().join('&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;');
+  track.innerHTML = `<span>${text}</span><span>${text}</span>`;
+  requestAnimationFrame(()=>{
+    const oneCopyWidth = track.scrollWidth / 2;
+    const pxPerSecond = 55; // velocità costante, indipendente da quanto testo c'è
+    track.style.animationDuration = Math.max(10, oneCopyWidth / pxPerSecond) + 's';
+  });
+}
+
 function render(){
   if(view === 'calendario'){
     renderCalendar();
@@ -595,6 +662,7 @@ function render(){
   } else {
     renderList();
   }
+  updateTicker();
 }
 
 function renderList(){
@@ -1135,20 +1203,20 @@ function renderStatsSummary(pool){
   </div>`;
 }
 
-function badgeCard(icon, titolo, valore, dettaglio){
+function badgeCard(b){
   return `<div class="badge-card">
-    <div class="badge-icon">${icon}</div>
+    <div class="badge-icon">${b.icon}</div>
     <div class="badge-body">
-      <div class="badge-title">${titolo}</div>
-      <div class="badge-value">${valore}</div>
-      ${dettaglio ? `<div class="badge-detail">${dettaglio}</div>` : ''}
+      <div class="badge-title">${b.titolo}</div>
+      <div class="badge-value">${b.valore}</div>
+      ${b.dettaglio ? `<div class="badge-detail">${b.dettaglio}</div>` : ''}
     </div>
   </div>`;
 }
 
-function renderStatsBadges(pool){
+function computeBadges(pool){
   const opponentOf = m => m.casa===TEAM ? m.trasferta : m.casa;
-  const cards = [];
+  const badges = [];
 
   // Striscia di vittorie più lunga + striscia attuale
   let best = {len:0, endIdx:-1}, cur = 0;
@@ -1158,8 +1226,8 @@ function renderStatsBadges(pool){
   });
   if(best.len>0){
     const startM = pool[best.endIdx-best.len+1], endM = pool[best.endIdx];
-    cards.push(badgeCard('🔥','Striscia di vittorie più lunga', `${best.len} partite`,
-      `${fmtData(startM.data)} → ${fmtData(endM.data)}`));
+    badges.push({icon:'🔥', titolo:'Striscia di vittorie più lunga', valore:`${best.len} partite`,
+      dettaglio:`${fmtData(startM.data)} → ${fmtData(endM.data)}`});
   }
   let curStreak = 0, curType = null;
   for(let i=pool.length-1;i>=0;i--){
@@ -1168,8 +1236,8 @@ function renderStatsBadges(pool){
     if(esito===curType) curStreak++; else break;
   }
   if(curStreak>0){
-    cards.push(badgeCard(curType==='V'?'⚡':'🥶', curType==='V'?'Striscia vittorie in corso':'Striscia sconfitte in corso',
-      `${curStreak} partite`, `ultima: ${fmtData(pool[pool.length-1].data)}`));
+    badges.push({icon:curType==='V'?'⚡':'🥶', titolo:curType==='V'?'Striscia vittorie in corso':'Striscia sconfitte in corso',
+      valore:`${curStreak} partite`, dettaglio:`ultima: ${fmtData(pool[pool.length-1].data)}`});
   }
 
   // Miglior rimonta: partita vinta dopo aver perso i primi set
@@ -1180,15 +1248,15 @@ function renderStatsBadges(pool){
     if(lost>0 && (!bestComeback || lost>bestComeback.lost)) bestComeback = {m, lost};
   });
   if(bestComeback){
-    cards.push(badgeCard('💪','Miglior rimonta', `Sotto di ${bestComeback.lost} set`,
-      `vs ${escapeHtml(opponentOf(bestComeback.m))} · ${bestComeback.m.risultato.score} · ${fmtData(bestComeback.m.data)}`));
+    badges.push({icon:'💪', titolo:'Miglior rimonta', valore:`Sotto di ${bestComeback.lost} set`,
+      dettaglio:`vs ${escapeHtml(opponentOf(bestComeback.m))} · ${bestComeback.m.risultato.score} · ${fmtData(bestComeback.m.data)}`});
   }
 
   // Prima vittoria netta (senza perdere set)
   const primoPulito = pool.find(m=> m.risultato.esito==='V' && m.risultato.sets.every(s=>s.gv>s.opp));
   if(primoPulito){
-    cards.push(badgeCard('🧹','Prima vittoria netta', escapeHtml(primoPulito.risultato.score),
-      `vs ${escapeHtml(opponentOf(primoPulito))} · ${fmtData(primoPulito.data)}`));
+    badges.push({icon:'🧹', titolo:'Prima vittoria netta', valore:escapeHtml(primoPulito.risultato.score),
+      dettaglio:`vs ${escapeHtml(opponentOf(primoPulito))} · ${fmtData(primoPulito.data)}`});
   }
 
   // Punteggio più netto (maggior scarto punti in una vittoria)
@@ -1198,8 +1266,8 @@ function renderStatsBadges(pool){
     if(!bestMargin || diff>bestMargin.diff) bestMargin = {m, diff, p};
   });
   if(bestMargin){
-    cards.push(badgeCard('🎯','Vittoria più netta a punti', `+${bestMargin.diff} punti`,
-      `vs ${escapeHtml(opponentOf(bestMargin.m))} · ${bestMargin.p.gv}-${bestMargin.p.opp} · ${fmtData(bestMargin.m.data)}`));
+    badges.push({icon:'🎯', titolo:'Vittoria più netta a punti', valore:`+${bestMargin.diff} punti`,
+      dettaglio:`vs ${escapeHtml(opponentOf(bestMargin.m))} · ${bestMargin.p.gv}-${bestMargin.p.opp} · ${fmtData(bestMargin.m.data)}`});
   }
 
   // Set decisivo più combattuto (ultimo set giocato in ogni partita, margine minimo)
@@ -1211,8 +1279,8 @@ function renderStatsBadges(pool){
     if(!tightest || margin<tightest.margin) tightest = {m, last, margin};
   });
   if(tightest){
-    cards.push(badgeCard('😤','Ultimo set più combattuto', `${tightest.last.gv}-${tightest.last.opp}`,
-      `vs ${escapeHtml(opponentOf(tightest.m))} · ${tightest.m.risultato.esito==='V'?'vinta':'persa'} · ${fmtData(tightest.m.data)}`));
+    badges.push({icon:'😤', titolo:'Ultimo set più combattuto', valore:`${tightest.last.gv}-${tightest.last.opp}`,
+      dettaglio:`vs ${escapeHtml(opponentOf(tightest.m))} · ${tightest.m.risultato.esito==='V'?'vinta':'persa'} · ${fmtData(tightest.m.data)}`});
   }
 
   // Avversario battuto più spesso
@@ -1221,14 +1289,19 @@ function renderStatsBadges(pool){
   let favOpp = null;
   Object.keys(byOpp).forEach(o=>{ if(!favOpp || byOpp[o].w>byOpp[favOpp].w) favOpp = o; });
   if(favOpp && byOpp[favOpp].w>0){
-    cards.push(badgeCard('🏆','Avversario battuto più spesso', escapeHtml(favOpp),
-      `${byOpp[favOpp].w} vittorie su ${byOpp[favOpp].n} sfide`));
+    badges.push({icon:'🏆', titolo:'Avversario battuto più spesso', valore:escapeHtml(favOpp),
+      dettaglio:`${byOpp[favOpp].w} vittorie su ${byOpp[favOpp].n} sfide`});
   }
 
-  if(cards.length===0) return '';
+  return badges;
+}
+
+function renderStatsBadges(pool){
+  const badges = computeBadges(pool);
+  if(badges.length===0) return '';
   return `<div class="stats-section">
     <h3>Badge e record</h3>
-    <div class="badge-grid">${cards.join('')}</div>
+    <div class="badge-grid">${badges.map(badgeCard).join('')}</div>
   </div>`;
 }
 
