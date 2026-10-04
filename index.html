@@ -75,6 +75,9 @@ header{
 .badge-value{font-size:1.05rem; font-weight:800; margin-top:1px;}
 .badge-detail{font-size:.78rem; color:var(--sub); margin-top:2px;}
 .like-bar{display:flex; gap:8px; margin-top:8px;}
+.like-edit-row{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; flex-wrap:wrap;}
+.like-edit-row .like-bar{margin-top:0;}
+.like-edit-row .edit-match-btn{margin-top:0;}
 .like-btn{
   display:flex; align-items:center; gap:4px; background:transparent; border:1px solid var(--line);
   border-radius:999px; padding:4px 12px; font-size:.85rem; color:var(--ink); font-weight:600;
@@ -481,10 +484,9 @@ function matchCardHtml(m, isNext){
   const likeCount = Object.values(voti).filter(v=>v==='like').length;
   const unlikeCount = Object.values(voti).filter(v=>v==='unlike').length;
   const myVote = currentVoterVote(m);
-  const likeBar = `<div class="like-bar">
+  const likeButtons = `
     <button class="like-btn ${myVote==='like'?'active-like':''}" onclick="vote('${m.n}','like')">👍 ${likeCount}</button>
-    <button class="like-btn ${myVote==='unlike'?'active-unlike':''}" onclick="vote('${m.n}','unlike')">👎 ${unlikeCount}</button>
-  </div>`;
+    <button class="like-btn ${myVote==='unlike'?'active-unlike':''}" onclick="vote('${m.n}','unlike')">👎 ${unlikeCount}</button>`;
 
   if(m.risultato && !isOpen){
     const cls = m.risultato.esito === 'V' ? 'win' : 'loss';
@@ -560,7 +562,10 @@ function matchCardHtml(m, isNext){
       <div class="data">${fmtData(m.data)} · ${m.ora}</div>
       <div class="match">Green Volley vs <b>${escapeHtml(opponent)}</b></div>
       <div class="luogo">${escapeHtml(m.impianto)} — <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.indirizzo + ', ' + m.citta + ' ' + m.prov)}" target="_blank" rel="noopener" class="maps-link">${escapeHtml(m.indirizzo)}, ${escapeHtml(m.citta)} (${m.prov}) 📍</a></div>
-      ${writable ? `<button class="btn-ghost edit-match-btn" onclick="openMatchEdit('${m.n}')">✏️ Modifica partita</button>` : ''}`;
+      <div class="like-edit-row">
+        <div class="like-bar">${likeButtons}</div>
+        ${writable ? `<button class="btn-ghost edit-match-btn" onclick="openMatchEdit('${m.n}')">✏️ Modifica partita</button>` : ''}
+      </div>`;
   }
 
   return `
@@ -570,7 +575,7 @@ function matchCardHtml(m, isNext){
         <span class="badge ${badgeClass}">${badgeLabel}</span>
       </div>
       <span class="camp-badge" style="background:${campColor(m.campionato)}">${escapeHtml(m.campionato)}</span>
-      ${likeBar}
+      ${isEditingMatch ? `<div class="like-bar">${likeButtons}</div>` : ''}
       ${infoBlock}
       ${resultBlock}
       <a class="share-btn" href="${whatsappUrl(m)}" target="_blank" rel="noopener">📲 Condividi su WhatsApp</a>
@@ -1396,16 +1401,17 @@ function renderStats(){
   </div>`;
 
   const likesPool = campPool.filter(m=> statCampionato==='tutti' || m.campionato===statCampionato);
-  html += renderStatsLikes(likesPool);
 
   const pool = statsPool();
   if(pool.length===0){
     html += `<p class="readonly-note">Nessuna partita giocata per questa selezione.</p>`;
+    html += renderStatsLikes(likesPool);
     main.innerHTML = html;
     return;
   }
   html += renderStatsSummary(pool);
   html += renderStatsBadges(pool);
+  html += renderStatsLikes(likesPool);
   html += renderStatsTrend(pool);
   html += renderStatsHomeAway(pool);
   html += renderStatsBySet(pool);
