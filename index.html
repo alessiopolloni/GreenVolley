@@ -334,8 +334,11 @@ let matches = []; // nessun dato incorporato: tutto arriva da data.json via /api
 let writable = true; // ottimistico finché non arriva un rifiuto
 
 const CAMP_COLORS = ['#3fa34d','#c98a2c','#3b6fc9','#a03bc9','#c93b5e','#3bb3a3'];
-const allCampionati = [...new Set(matches.map(m=>m.campionato))].sort();
-function campColor(nome){ return CAMP_COLORS[allCampionati.indexOf(nome) % CAMP_COLORS.length]; }
+function campColor(nome){
+  const lista = [...new Set(matches.map(m=>m.campionato))].sort();
+  const idx = lista.indexOf(nome);
+  return idx >= 0 ? CAMP_COLORS[idx % CAMP_COLORS.length] : CAMP_COLORS[0];
+}
 
 let selectedSeason = null;
 let selectedCampionato = 'tutti';
