@@ -60,6 +60,13 @@ header{
 .notif-item{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:.76rem; line-height:1.35;}
 .notif-item .notif-time{color:var(--sub); font-size:.7rem; display:block; margin-top:1px;}
 .notif-empty{color:var(--sub); font-size:.78rem;}
+.weather-btn{
+  background:var(--line); color:var(--ink); font-size:.78rem; padding:2px 10px; border-radius:999px;
+  margin-left:4px; vertical-align:middle;
+}
+.weather-detail{text-align:center; margin-bottom:12px;}
+.weather-icon-big{font-size:2.6rem; line-height:1;}
+.weather-label{color:var(--sub); font-size:.92rem; font-weight:600; margin-top:2px;}
 .side-menu-slogan{
   margin-top:auto; padding-top:16px; text-align:center; color:var(--sub); font-size:.78rem;
   font-weight:600; line-height:1.5; letter-spacing:.02em;
@@ -594,8 +601,8 @@ function matchCardHtml(m, isNext){
       </form>`;
   } else {
     infoBlock = `
-      <div class="data">${fmtData(m.data)} · ${m.ora}</div>
-      <div class="match">Green Volley vs <b>${escapeHtml(opponent)}</b></div>
+      <div class="data">${fmtData(m.data)} · ${m.ora} ${weatherButtonHtml(m)}</div>
+      <div class="match">vs <b>${escapeHtml(opponent)}</b></div>
       <div class="luogo">${escapeHtml(m.impianto)} — <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.indirizzo + ', ' + m.citta + ' ' + m.prov)}" target="_blank" rel="noopener" class="maps-link">${escapeHtml(m.indirizzo)}, ${escapeHtml(m.citta)} (${m.prov}) 📍</a></div>
       <div class="like-edit-row">
         <div class="like-bar">${likeButtons}</div>
@@ -672,6 +679,120 @@ function updateTicker(){
   });
 }
 
+/* ===== Meteo (Open-Meteo, gratuito e senza chiave API) ===== */
+const weatherCache = {}; // "citta|prov|data" -> dati meteo o {error:true}
+const geoCache = {};     // "citta|prov" -> {lat, lon}
+
+function addDaysIso(iso, days){
+  const d = new Date(iso+"T00:00:00");
+  d.setDate(d.getDate()+days);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function needsWeather(m){
+  const today = todayLocalIso();
+  return m.data >= today && m.data <= addDaysIso(today, 15);
+}
+
+function weatherCodeToIcon(code){
+  const map = {
+    0:['☀️','Sereno'], 1:['🌤️','Poco nuvoloso'], 2:['⛅','Parzialmente nuvoloso'], 3:['☁️','Coperto'],
+    45:['🌫️','Nebbia'], 48:['🌫️','Nebbia con brina'],
+    51:['🌦️','Pioviggine leggera'], 53:['🌦️','Pioviggine'], 55:['🌦️','Pioviggine intensa'],
+    56:['🌧️','Pioviggine gelata'], 57:['🌧️','Pioviggine gelata intensa'],
+    61:['🌧️','Pioggia debole'], 63:['🌧️','Pioggia'], 65:['🌧️','Pioggia intensa'],
+    66:['🌧️','Pioggia gelata'], 67:['🌧️','Pioggia gelata intensa'],
+    71:['❄️','Neve debole'], 73:['❄️','Neve'], 75:['❄️','Neve intensa'], 77:['❄️','Granelli di neve'],
+    80:['🌦️','Rovesci deboli'], 81:['🌧️','Rovesci'], 82:['⛈️','Rovesci forti'],
+    85:['❄️','Rovesci di neve'], 86:['❄️','Rovesci di neve intensi'],
+    95:['⛈️','Temporale'], 96:['⛈️','Temporale con grandine'], 99:['⛈️','Temporale forte con grandine']
+  };
+  const [icon, label] = map[code] || ['❔','Non disponibile'];
+  return { icon, label };
+}
+
+async function fetchWeatherForMatch(m){
+  const key = `${m.citta}|${m.prov}|${m.data}`;
+  if(weatherCache[key]) return weatherCache[key];
+  try{
+    const geoKey = `${m.citta}|${m.prov}`;
+    let coords = geoCache[geoKey];
+    if(!coords){
+      const gRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(m.citta)}&count=5&language=it&country=IT`);
+      const gData = await gRes.json();
+      let best = gData.results && gData.results[0];
+      if(gData.results && gData.results.length>1){
+        const migliore = gData.results.find(r => `${r.admin2||''} ${r.admin3||''}`.toUpperCase().includes(m.prov));
+        if(migliore) best = migliore;
+      }
+      if(!best) throw new Error('località non trovata');
+      coords = { lat: best.latitude, lon: best.longitude };
+      geoCache[geoKey] = coords;
+    }
+    const fRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max,precipitation_probability_max,precipitation_sum&timezone=Europe%2FRome&start_date=${m.data}&end_date=${m.data}`);
+    const fData = await fRes.json();
+    if(!fData.daily || !fData.daily.time || fData.daily.time.length===0) throw new Error('previsione non disponibile');
+    const info = {
+      code: fData.daily.weathercode[0],
+      tempMax: fData.daily.temperature_2m_max[0],
+      tempMin: fData.daily.temperature_2m_min[0],
+      wind: fData.daily.windspeed_10m_max[0],
+      precipProb: fData.daily.precipitation_probability_max ? fData.daily.precipitation_probability_max[0] : null,
+      precipSum: fData.daily.precipitation_sum[0]
+    };
+    weatherCache[key] = { ...info, ...weatherCodeToIcon(info.code) };
+  }catch(e){
+    weatherCache[key] = { error:true, icon:'❔', label:'Meteo non disponibile' };
+  }
+  return weatherCache[key];
+}
+
+function weatherButtonHtml(m){
+  if(!needsWeather(m)) return '';
+  const key = `${m.citta}|${m.prov}|${m.data}`;
+  const w = weatherCache[key];
+  if(!w) return `<button class="weather-btn" id="weather-${m.n}" title="Caricamento meteo…">⏳</button>`;
+  if(w.error) return `<button class="weather-btn" id="weather-${m.n}" title="${escapeHtml(w.label)}">❔</button>`;
+  return `<button class="weather-btn" id="weather-${m.n}" onclick="openWeatherModal('${m.n}')" title="${escapeHtml(w.label)}">${w.icon} ${Math.round(w.tempMax)}°</button>`;
+}
+
+function loadWeatherForUpcoming(){
+  matches.filter(needsWeather).forEach(m=>{
+    const key = `${m.citta}|${m.prov}|${m.data}`;
+    if(weatherCache[key]) return;
+    fetchWeatherForMatch(m).then(()=>{
+      const el = document.getElementById('weather-'+m.n);
+      if(el) el.outerHTML = weatherButtonHtml(m);
+    });
+  });
+}
+
+function openWeatherModal(n){
+  const m = matches.find(x=>x.n===n);
+  if(!m) return;
+  const key = `${m.citta}|${m.prov}|${m.data}`;
+  const w = weatherCache[key];
+  if(!w || w.error) return;
+  const html = `
+    <p class="chart-title" style="margin-top:0">Meteo previsto — ${fmtData(m.data)}</p>
+    <div class="weather-detail">
+      <div class="weather-icon-big">${w.icon}</div>
+      <div class="weather-label">${escapeHtml(w.label)}</div>
+      <div class="readonly-note" style="margin:4px 0 0">${escapeHtml(m.citta)} (${m.prov})</div>
+    </div>
+    <table class="stats-table">
+      <tr><td>Temperatura massima</td><td>${Math.round(w.tempMax)}°C</td></tr>
+      <tr><td>Temperatura minima</td><td>${Math.round(w.tempMin)}°C</td></tr>
+      <tr><td>Vento massimo</td><td>${Math.round(w.wind)} km/h</td></tr>
+      ${w.precipProb!=null ? `<tr><td>Probabilità di pioggia</td><td>${w.precipProb}%</td></tr>` : ''}
+      <tr><td>Precipitazioni previste</td><td>${w.precipSum} mm</td></tr>
+    </table>
+    <p class="readonly-note">Fonte: Open-Meteo — previsione, può cambiare avvicinandosi alla data</p>`;
+  document.getElementById('modal-sheet').innerHTML =
+    `<button class="modal-close" onclick="closeModal()">Chiudi ✕</button>` + html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
 function render(){
   if(view === 'calendario'){
     renderCalendar();
@@ -683,6 +804,7 @@ function render(){
     renderList();
   }
   updateTicker();
+  loadWeatherForUpcoming();
 }
 
 function renderList(){
