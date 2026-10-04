@@ -55,6 +55,19 @@ header{
   display:flex; flex-direction:column; gap:10px; box-shadow:-4px 0 16px rgba(0,0,0,.15);
 }
 .side-menu .export-btn{width:100%; margin-top:0; text-align:center;}
+.side-menu-slogan{
+  margin-top:auto; padding-top:16px; text-align:center; color:var(--sub); font-size:.78rem;
+  font-weight:600; line-height:1.5; letter-spacing:.02em;
+}
+.addr-list{background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden;}
+.addr-row{
+  display:block; width:100%; text-align:left; background:transparent; color:var(--ink);
+  padding:10px 12px; border-bottom:1px solid var(--line); text-decoration:none; font:inherit;
+}
+.addr-row:last-child{border-bottom:none;}
+.addr-row .addr-team{font-weight:600; font-size:.88rem;}
+.addr-row .addr-place{color:var(--sub); font-size:.78rem; margin-top:2px;}
+.edit-match-btn{display:block; margin-top:6px; font-size:.78rem; padding:2px 0;}
 header h1{margin:0; font-size:1.25rem;}
 header p{margin:4px 0 0; color:var(--sub); font-size:.85rem;}
 main{max-width:640px; margin:0 auto; padding:14px 12px 40px;}
@@ -287,8 +300,10 @@ form.entry .sets-grid input{
 <div class="side-menu-overlay" id="side-menu-overlay" onclick="if(event.target===this)toggleSideMenu(false)">
   <div class="side-menu">
     <button class="modal-close" onclick="toggleSideMenu(false)">Chiudi ✕</button>
+    <button class="export-btn" onclick="openAddressList()">📍 Indirizzi squadre</button>
     <button class="export-btn" onclick="loadFromApi(true)">🔄 Aggiorna dati</button>
     <button class="export-btn" onclick="exportCsv()">⬇️ Esporta tutto in CSV</button>
+    <div class="side-menu-slogan">Presenti comunque e dovunque<br>Curva budini molli</div>
   </div>
 </div>
 <main id="main"></main>
@@ -393,6 +408,7 @@ function setView(v){
 
 let openForms = new Set(); // numeri partita con form risultato aperto (nuovo o in modifica)
 let confirmingDelete = new Set(); // numeri partita in attesa di conferma eliminazione
+let editingMatch = new Set(); // numeri partita con form dati partita (data/ora/luogo) aperto
 
 function setInputHtml(n, i, existing){
   const gv = existing && existing[i-1] ? existing[i-1].gv : '';
@@ -495,6 +511,36 @@ function matchCardHtml(m, isNext){
         <button class="btn-primary" onclick="openForm('${m.n}')">Aggiungi risultato</button>
       </div>`;
   }
+  const isEditingMatch = editingMatch.has(m.n);
+  let infoBlock;
+  if(isEditingMatch){
+    infoBlock = `
+      <form class="entry open" id="matchform-${m.n}" onsubmit="return saveMatchInfo(event,'${m.n}')">
+        <label>Data</label>
+        <input type="date" id="edata-${m.n}" value="${m.data}" required>
+        <label>Ora</label>
+        <input type="time" id="eora-${m.n}" value="${m.ora}" required>
+        <label>Impianto</label>
+        <input type="text" id="eimpianto-${m.n}" value="${escapeHtml(m.impianto)}" required>
+        <label>Indirizzo</label>
+        <input type="text" id="eindirizzo-${m.n}" value="${escapeHtml(m.indirizzo)}" required>
+        <label>Città</label>
+        <input type="text" id="ecitta-${m.n}" value="${escapeHtml(m.citta)}" required>
+        <label>Provincia</label>
+        <input type="text" id="eprov-${m.n}" value="${escapeHtml(m.prov)}" maxlength="2" required>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeMatchEdit('${m.n}')">Annulla</button>
+          <button type="submit" class="btn-primary">Salva</button>
+        </div>
+      </form>`;
+  } else {
+    infoBlock = `
+      <div class="data">${fmtData(m.data)} · ${m.ora}</div>
+      <div class="match">Green Volley vs <b>${escapeHtml(opponent)}</b></div>
+      <div class="luogo">${escapeHtml(m.impianto)} — <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.indirizzo + ', ' + m.citta + ' ' + m.prov)}" target="_blank" rel="noopener" class="maps-link">${escapeHtml(m.indirizzo)}, ${escapeHtml(m.citta)} (${m.prov}) 📍</a></div>
+      ${writable ? `<button class="btn-ghost edit-match-btn" onclick="openMatchEdit('${m.n}')">✏️ Modifica partita</button>` : ''}`;
+  }
+
   return `
     <div class="card ${isNext ? 'next':''}">
       <div class="row-top">
@@ -502,9 +548,7 @@ function matchCardHtml(m, isNext){
         <span class="badge ${badgeClass}">${badgeLabel}</span>
       </div>
       <span class="camp-badge" style="background:${campColor(m.campionato)}">${escapeHtml(m.campionato)}</span>
-      <div class="data">${fmtData(m.data)} · ${m.ora}</div>
-      <div class="match">Green Volley vs <b>${escapeHtml(opponent)}</b></div>
-      <div class="luogo">${escapeHtml(m.impianto)} — <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.indirizzo + ', ' + m.citta + ' ' + m.prov)}" target="_blank" rel="noopener" class="maps-link">${escapeHtml(m.indirizzo)}, ${escapeHtml(m.citta)} (${m.prov}) 📍</a></div>
+      ${infoBlock}
       ${resultBlock}
       <a class="share-btn" href="${whatsappUrl(m)}" target="_blank" rel="noopener">📲 Condividi su WhatsApp</a>
     </div>`;
@@ -659,11 +703,90 @@ function toggleSideMenu(open){
   document.getElementById('side-menu-overlay').classList.toggle('open', open);
 }
 
+function openAddressList(){
+  toggleSideMenu(false);
+  const teams = {};
+  filteredMatches().forEach(m=>{
+    if(!teams[m.casa]) teams[m.casa] = { impianto:m.impianto, indirizzo:m.indirizzo, citta:m.citta, prov:m.prov };
+  });
+  const names = Object.keys(teams).sort();
+  let rows;
+  if(names.length === 0){
+    rows = `<p class="readonly-note">Nessuna squadra per questa selezione.</p>`;
+  } else {
+    rows = `<div class="addr-list">` + names.map(team=>{
+      const v = teams[team];
+      const mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(v.indirizzo + ', ' + v.citta + ' ' + v.prov);
+      return `<a class="addr-row" href="${mapsUrl}" target="_blank" rel="noopener">
+        <div class="addr-team">${escapeHtml(team)}</div>
+        <div class="addr-place">${escapeHtml(v.impianto)} — ${escapeHtml(v.indirizzo)}, ${escapeHtml(v.citta)} (${v.prov}) 📍</div>
+      </a>`;
+    }).join('') + `</div>`;
+  }
+  document.getElementById('modal-sheet').innerHTML =
+    `<button class="modal-close" onclick="closeModal()">Chiudi ✕</button>` +
+    `<p class="chart-title" style="margin-top:0">Indirizzi squadre — ${escapeHtml(selectedSeason)}${selectedCampionato!=='tutti' ? ' · '+escapeHtml(selectedCampionato) : ''}</p>` +
+    rows;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+/* ===== Password del giorno per abilitare le modifiche ===== */
+function todayPasswordItalian(){
+  const giorni = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+  return giorni[new Date().getDay()];
+}
+
+function isUnlocked(){
+  return sessionStorage.getItem('gv_unlock_day') === todayPasswordItalian();
+}
+
+function requireAuth(){
+  if(isUnlocked()) return true;
+  const pwd = prompt('Inserisci la password del giorno per modificare:');
+  if(pwd === null) return false;
+  if(pwd === todayPasswordItalian()){
+    sessionStorage.setItem('gv_unlock_day', todayPasswordItalian());
+    return true;
+  }
+  alert('Password errata');
+  return false;
+}
+
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+function openMatchEdit(n){
+  if(!requireAuth()) return;
+  editingMatch.add(n);
+  render();
+  refreshIfModal(n);
+}
+
+function closeMatchEdit(n){
+  editingMatch.delete(n);
+  render();
+  refreshIfModal(n);
+}
+
+async function saveMatchInfo(ev, n){
+  ev.preventDefault();
+  const m = matches.find(x=>x.n===n);
+  m.data = document.getElementById(`edata-${n}`).value;
+  m.ora = document.getElementById(`eora-${n}`).value;
+  m.impianto = document.getElementById(`eimpianto-${n}`).value.trim();
+  m.indirizzo = document.getElementById(`eindirizzo-${n}`).value.trim();
+  m.citta = document.getElementById(`ecitta-${n}`).value.trim();
+  m.prov = document.getElementById(`eprov-${n}`).value.trim().toUpperCase();
+  editingMatch.delete(n);
+  render();
+  refreshIfModal(n);
+  await persist();
+  return false;
+}
+
 function openForm(n){
+  if(!requireAuth()) return;
   openForms.add(n);
   render();
   refreshIfModal(n);
@@ -731,6 +854,7 @@ function refreshIfModal(n){
 }
 
 function editResult(n){
+  if(!requireAuth()) return;
   openForms.add(n);
   render();
   refreshIfModal(n);
@@ -748,6 +872,7 @@ async function deleteResult(n){
 }
 
 function askDeleteConfirm(n){
+  if(!requireAuth()) return;
   confirmingDelete.add(n);
   render();
   refreshIfModal(n);
