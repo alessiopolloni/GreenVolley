@@ -68,6 +68,12 @@ header{
 .addr-row .addr-team{font-weight:600; font-size:.88rem;}
 .addr-row .addr-place{color:var(--sub); font-size:.78rem; margin-top:2px;}
 .edit-match-btn{display:block; margin-top:6px; font-size:.78rem; padding:2px 0;}
+.badge-grid{display:flex; flex-direction:column; gap:8px;}
+.badge-card{display:flex; gap:10px; align-items:flex-start; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px;}
+.badge-icon{font-size:1.4rem; line-height:1;}
+.badge-title{font-size:.72rem; color:var(--sub); text-transform:uppercase; letter-spacing:.02em;}
+.badge-value{font-size:1.05rem; font-weight:800; margin-top:1px;}
+.badge-detail{font-size:.78rem; color:var(--sub); margin-top:2px;}
 header h1{margin:0; font-size:1.25rem;}
 header p{margin:4px 0 0; color:var(--sub); font-size:.85rem;}
 main{max-width:640px; margin:0 auto; padding:14px 12px 40px;}
@@ -1068,6 +1074,103 @@ function renderStatsSummary(pool){
   </div>`;
 }
 
+function badgeCard(icon, titolo, valore, dettaglio){
+  return `<div class="badge-card">
+    <div class="badge-icon">${icon}</div>
+    <div class="badge-body">
+      <div class="badge-title">${titolo}</div>
+      <div class="badge-value">${valore}</div>
+      ${dettaglio ? `<div class="badge-detail">${dettaglio}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderStatsBadges(pool){
+  const opponentOf = m => m.casa===TEAM ? m.trasferta : m.casa;
+  const cards = [];
+
+  // Striscia di vittorie più lunga + striscia attuale
+  let best = {len:0, endIdx:-1}, cur = 0;
+  pool.forEach((m,i)=>{
+    if(m.risultato.esito==='V'){ cur++; if(cur>best.len) best={len:cur, endIdx:i}; }
+    else cur = 0;
+  });
+  if(best.len>0){
+    const startM = pool[best.endIdx-best.len+1], endM = pool[best.endIdx];
+    cards.push(badgeCard('🔥','Striscia di vittorie più lunga', `${best.len} partite`,
+      `${fmtData(startM.data)} → ${fmtData(endM.data)}`));
+  }
+  let curStreak = 0, curType = null;
+  for(let i=pool.length-1;i>=0;i--){
+    const esito = pool[i].risultato.esito;
+    if(curType===null) curType = esito;
+    if(esito===curType) curStreak++; else break;
+  }
+  if(curStreak>0){
+    cards.push(badgeCard(curType==='V'?'⚡':'🥶', curType==='V'?'Striscia vittorie in corso':'Striscia sconfitte in corso',
+      `${curStreak} partite`, `ultima: ${fmtData(pool[pool.length-1].data)}`));
+  }
+
+  // Miglior rimonta: partita vinta dopo aver perso i primi set
+  let bestComeback = null;
+  pool.filter(m=>m.risultato.esito==='V').forEach(m=>{
+    let lost=0;
+    for(const s of m.risultato.sets){ if(s.gv<s.opp) lost++; else break; }
+    if(lost>0 && (!bestComeback || lost>bestComeback.lost)) bestComeback = {m, lost};
+  });
+  if(bestComeback){
+    cards.push(badgeCard('💪','Miglior rimonta', `Sotto di ${bestComeback.lost} set`,
+      `vs ${escapeHtml(opponentOf(bestComeback.m))} · ${bestComeback.m.risultato.score} · ${fmtData(bestComeback.m.data)}`));
+  }
+
+  // Prima vittoria netta (senza perdere set)
+  const primoPulito = pool.find(m=> m.risultato.esito==='V' && m.risultato.sets.every(s=>s.gv>s.opp));
+  if(primoPulito){
+    cards.push(badgeCard('🧹','Prima vittoria netta', escapeHtml(primoPulito.risultato.score),
+      `vs ${escapeHtml(opponentOf(primoPulito))} · ${fmtData(primoPulito.data)}`));
+  }
+
+  // Punteggio più netto (maggior scarto punti in una vittoria)
+  let bestMargin = null;
+  pool.filter(m=>m.risultato.esito==='V').forEach(m=>{
+    const p = matchPoints(m); const diff = p.gv - p.opp;
+    if(!bestMargin || diff>bestMargin.diff) bestMargin = {m, diff, p};
+  });
+  if(bestMargin){
+    cards.push(badgeCard('🎯','Vittoria più netta a punti', `+${bestMargin.diff} punti`,
+      `vs ${escapeHtml(opponentOf(bestMargin.m))} · ${bestMargin.p.gv}-${bestMargin.p.opp} · ${fmtData(bestMargin.m.data)}`));
+  }
+
+  // Set decisivo più combattuto (ultimo set giocato in ogni partita, margine minimo)
+  let tightest = null;
+  pool.forEach(m=>{
+    const last = m.risultato.sets[m.risultato.sets.length-1];
+    if(!last) return;
+    const margin = Math.abs(last.gv-last.opp);
+    if(!tightest || margin<tightest.margin) tightest = {m, last, margin};
+  });
+  if(tightest){
+    cards.push(badgeCard('😤','Ultimo set più combattuto', `${tightest.last.gv}-${tightest.last.opp}`,
+      `vs ${escapeHtml(opponentOf(tightest.m))} · ${tightest.m.risultato.esito==='V'?'vinta':'persa'} · ${fmtData(tightest.m.data)}`));
+  }
+
+  // Avversario battuto più spesso
+  const byOpp = {};
+  pool.forEach(m=>{ const o=opponentOf(m); (byOpp[o]=byOpp[o]||{w:0,n:0}); byOpp[o].n++; if(m.risultato.esito==='V') byOpp[o].w++; });
+  let favOpp = null;
+  Object.keys(byOpp).forEach(o=>{ if(!favOpp || byOpp[o].w>byOpp[favOpp].w) favOpp = o; });
+  if(favOpp && byOpp[favOpp].w>0){
+    cards.push(badgeCard('🏆','Avversario battuto più spesso', escapeHtml(favOpp),
+      `${byOpp[favOpp].w} vittorie su ${byOpp[favOpp].n} sfide`));
+  }
+
+  if(cards.length===0) return '';
+  return `<div class="stats-section">
+    <h3>Badge e record</h3>
+    <div class="badge-grid">${cards.join('')}</div>
+  </div>`;
+}
+
 function renderStatsTrend(pool){
   const labels = pool.map(m=>{ const d=new Date(m.data+"T00:00:00"); return d.getDate()+'/'+(d.getMonth()+1); });
   const esiti = pool.map(m=>m.risultato.esito==='V'?1:0);
@@ -1201,6 +1304,7 @@ function renderStats(){
     return;
   }
   html += renderStatsSummary(pool);
+  html += renderStatsBadges(pool);
   html += renderStatsTrend(pool);
   html += renderStatsHomeAway(pool);
   html += renderStatsBySet(pool);
