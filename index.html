@@ -74,6 +74,13 @@ header{
 .badge-title{font-size:.72rem; color:var(--sub); text-transform:uppercase; letter-spacing:.02em;}
 .badge-value{font-size:1.05rem; font-weight:800; margin-top:1px;}
 .badge-detail{font-size:.78rem; color:var(--sub); margin-top:2px;}
+.like-bar{display:flex; gap:8px; margin-top:8px;}
+.like-btn{
+  display:flex; align-items:center; gap:4px; background:transparent; border:1px solid var(--line);
+  border-radius:999px; padding:4px 12px; font-size:.85rem; color:var(--ink); font-weight:600;
+}
+.like-btn.active-like{border-color:var(--home); color:var(--home); background:rgba(63,163,77,.12);}
+.like-btn.active-unlike{border-color:var(--danger); color:var(--danger); background:rgba(192,57,43,.12);}
 header h1{margin:0; font-size:1.25rem;}
 header p{margin:4px 0 0; color:var(--sub); font-size:.85rem;}
 main{max-width:640px; margin:0 auto; padding:14px 12px 40px;}
@@ -470,6 +477,15 @@ function matchCardHtml(m, isNext){
   const isOpen = openForms.has(m.n);
   let resultBlock = '';
 
+  const voti = m.voti || {};
+  const likeCount = Object.values(voti).filter(v=>v==='like').length;
+  const unlikeCount = Object.values(voti).filter(v=>v==='unlike').length;
+  const myVote = currentVoterVote(m);
+  const likeBar = `<div class="like-bar">
+    <button class="like-btn ${myVote==='like'?'active-like':''}" onclick="vote('${m.n}','like')">👍 ${likeCount}</button>
+    <button class="like-btn ${myVote==='unlike'?'active-unlike':''}" onclick="vote('${m.n}','unlike')">👎 ${unlikeCount}</button>
+  </div>`;
+
   if(m.risultato && !isOpen){
     const cls = m.risultato.esito === 'V' ? 'win' : 'loss';
     const esitoText = m.risultato.esito === 'V' ? 'Vittoria' : 'Sconfitta';
@@ -554,6 +570,7 @@ function matchCardHtml(m, isNext){
         <span class="badge ${badgeClass}">${badgeLabel}</span>
       </div>
       <span class="camp-badge" style="background:${campColor(m.campionato)}">${escapeHtml(m.campionato)}</span>
+      ${likeBar}
       ${infoBlock}
       ${resultBlock}
       <a class="share-btn" href="${whatsappUrl(m)}" target="_blank" rel="noopener">📲 Condividi su WhatsApp</a>
@@ -703,6 +720,42 @@ function openModal(n){
 
 function closeModal(){
   document.getElementById('modal-overlay').classList.remove('open');
+}
+
+/* ===== Like / Unlike partite ===== */
+function getVoterName(){
+  let name = localStorage.getItem('gv_voter_name');
+  if(!name){
+    const input = prompt('Come ti chiami? (così ricordo i tuoi like)');
+    if(input && input.trim()){
+      name = input.trim();
+      localStorage.setItem('gv_voter_name', name);
+    } else {
+      return null;
+    }
+  }
+  return name;
+}
+
+function currentVoterVote(m){
+  const name = localStorage.getItem('gv_voter_name');
+  if(!name || !m.voti) return null;
+  return m.voti[name] || null;
+}
+
+async function vote(n, type){
+  const name = getVoterName();
+  if(!name) return;
+  const m = matches.find(x=>x.n===n);
+  if(!m.voti) m.voti = {};
+  if(m.voti[name] === type){
+    delete m.voti[name];
+  } else {
+    m.voti[name] = type;
+  }
+  render();
+  refreshIfModal(n);
+  await persist();
 }
 
 function toggleSideMenu(open){
@@ -1280,6 +1333,51 @@ function renderStatsCompare(pool){
   return html;
 }
 
+function renderStatsLikes(pool){
+  const opponentOf = m => m.casa===TEAM ? m.trasferta : m.casa;
+  const withVotes = pool
+    .map(m=>{
+      const voti = m.voti || {};
+      const like = Object.values(voti).filter(v=>v==='like').length;
+      const unlike = Object.values(voti).filter(v=>v==='unlike').length;
+      return { m, like, unlike, tot: like+unlike };
+    })
+    .filter(x=>x.tot>0);
+
+  if(withVotes.length===0){
+    return `<div class="stats-section"><h3>Like alle partite</h3><p class="readonly-note">Nessun like o unlike ancora messo per questa selezione.</p></div>`;
+  }
+
+  const totLike = withVotes.reduce((a,x)=>a+x.like,0);
+  const totUnlike = withVotes.reduce((a,x)=>a+x.unlike,0);
+  const piuPiaciute = [...withVotes].sort((a,b)=> (b.like-b.unlike)-(a.like-a.unlike) || b.like-a.like).slice(0,5);
+  const piuContestata = [...withVotes].sort((a,b)=> b.unlike-a.unlike)[0];
+
+  const rows = piuPiaciute.map(x=>`
+    <div class="synth-row" onclick="openModal('${x.m.n}')">
+      <div class="synth-main">
+        <span class="synth-opp">${escapeHtml(opponentOf(x.m))}</span>
+        <span class="synth-date">${fmtData(x.m.data)} · ${escapeHtml(x.m.campionato)}</span>
+      </div>
+      <span class="synth-ha">👍 ${x.like}</span>
+      <span class="synth-score">👎 ${x.unlike}</span>
+      <span></span>
+    </div>`).join('');
+
+  return `<div class="stats-section">
+    <h3>Like alle partite</h3>
+    <div class="stat-grid">
+      <div class="stat-card win"><span class="stat-num">${totLike}</span><span class="stat-label">Like totali</span></div>
+      <div class="stat-card loss"><span class="stat-num">${totUnlike}</span><span class="stat-label">Unlike totali</span></div>
+      <div class="stat-card"><span class="stat-num">${withVotes.length}</span><span class="stat-label">Partite votate</span></div>
+      <div class="stat-card"><span class="stat-num">${(totLike/withVotes.length).toFixed(1)}</span><span class="stat-label">Like medi/partita votata</span></div>
+    </div>
+    <p class="chart-title">Partite più piaciute</p>
+    <div class="synth-list">${rows}</div>
+    ${piuContestata && piuContestata.unlike>0 ? `<p class="readonly-note">Partita più contestata: <b>${escapeHtml(opponentOf(piuContestata.m))}</b> (${fmtData(piuContestata.m.data)}) con ${piuContestata.unlike} unlike</p>` : ''}
+  </div>`;
+}
+
 function renderStats(){
   const main = document.getElementById('main');
   const allSeasons = getSeasons();
@@ -1296,6 +1394,9 @@ function renderStats(){
       ${allCamps.map(c=>`<option value="${escapeHtml(c)}" ${c===statCampionato?'selected':''}>${escapeHtml(c)}</option>`).join('')}
     </select>
   </div>`;
+
+  const likesPool = campPool.filter(m=> statCampionato==='tutti' || m.campionato===statCampionato);
+  html += renderStatsLikes(likesPool);
 
   const pool = statsPool();
   if(pool.length===0){
