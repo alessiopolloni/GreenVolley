@@ -30,7 +30,10 @@
     "prov": "AR",
     "risultato": null,
     "stagione": "2026/2027",
-    "campionato": "FIPAV U14F"
+    "campionato": "FIPAV U14F",
+    "voti": {
+      "Alessio": "like"
+    }
   },
   {
     "n": "s2026_2027_fipav_u14f_14249",
