@@ -52,9 +52,14 @@ header{
 .side-menu-overlay.open{display:flex;}
 .side-menu{
   background:var(--bg); width:min(78vw, 300px); height:100%; padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 16px;
-  display:flex; flex-direction:column; gap:10px; box-shadow:-4px 0 16px rgba(0,0,0,.15);
+  display:flex; flex-direction:column; gap:10px; box-shadow:-4px 0 16px rgba(0,0,0,.15); overflow-y:auto;
 }
-.side-menu .export-btn{width:100%; margin-top:0; text-align:center;}
+.side-menu .export-btn{width:100%; margin-top:0; text-align:center; flex-shrink:0;}
+.side-menu-notif-title{font-size:.78rem; font-weight:700; color:var(--sub); margin-bottom:6px; text-transform:uppercase; letter-spacing:.02em;}
+.notif-list{display:flex; flex-direction:column; gap:6px; margin-bottom:4px;}
+.notif-item{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:.76rem; line-height:1.35;}
+.notif-item .notif-time{color:var(--sub); font-size:.7rem; display:block; margin-top:1px;}
+.notif-empty{color:var(--sub); font-size:.78rem;}
 .side-menu-slogan{
   margin-top:auto; padding-top:16px; text-align:center; color:var(--sub); font-size:.78rem;
   font-weight:600; line-height:1.5; letter-spacing:.02em;
@@ -329,6 +334,10 @@ form.entry .sets-grid input{
   <div class="side-menu">
     <button class="modal-close" onclick="toggleSideMenu(false)">Chiudi ✕</button>
     <button class="export-btn" onclick="openAddressList()">📍 Indirizzi squadre</button>
+    <div class="side-menu-notif">
+      <div class="side-menu-notif-title">🔔 Ultimi aggiornamenti</div>
+      <div class="notif-list" id="notif-list"></div>
+    </div>
     <button class="export-btn" onclick="loadFromApi(true)">🔄 Aggiorna dati</button>
     <button class="export-btn" onclick="exportCsv()">⬇️ Esporta tutto in CSV</button>
     <div class="side-menu-slogan">Presenti comunque e dovunque<br>Curva budini molli</div>
@@ -440,6 +449,17 @@ function setView(v){
 let openForms = new Set(); // numeri partita con form risultato aperto (nuovo o in modifica)
 let confirmingDelete = new Set(); // numeri partita in attesa di conferma eliminazione
 let editingMatch = new Set(); // numeri partita con form dati partita (data/ora/luogo) aperto
+let notifiche = []; // ultimi aggiornamenti: like/unlike, risultati, modifiche partita (condivisi via data.json)
+
+function nowLocalTime(){
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function addNotifica(entry){
+  notifiche.unshift({ data: todayLocalIso(), ora: nowLocalTime(), ...entry });
+  notifiche = notifiche.slice(0, 10);
+}
 
 function setInputHtml(n, i, existing){
   const gv = existing && existing[i-1] ? existing[i-1].gv : '';
@@ -828,6 +848,8 @@ async function vote(n, type){
     delete m.voti[name];
   } else {
     m.voti[name] = type;
+    const opp = m.casa===TEAM ? m.trasferta : m.casa;
+    addNotifica({ tipo: type, nome: name, opponent: opp });
   }
   render();
   refreshIfModal(n);
@@ -836,6 +858,30 @@ async function vote(n, type){
 
 function toggleSideMenu(open){
   document.getElementById('side-menu-overlay').classList.toggle('open', open);
+  if(open) renderNotifiche();
+}
+
+function renderNotifiche(){
+  const el = document.getElementById('notif-list');
+  if(!el) return;
+  if(notifiche.length === 0){
+    el.innerHTML = `<div class="notif-empty">Nessun aggiornamento recente.</div>`;
+    return;
+  }
+  el.innerHTML = notifiche.map(nf=>{
+    let testo;
+    if(nf.tipo === 'like' || nf.tipo === 'unlike'){
+      testo = `${nf.tipo==='like'?'👍':'👎'} <b>${escapeHtml(nf.nome)}</b> ha messo ${nf.tipo==='like'?'like':'unlike'} — vs ${escapeHtml(nf.opponent)}`;
+    } else if(nf.tipo === 'risultato'){
+      const esitoTxt = nf.esito==='V' ? 'Vittoria' : 'Sconfitta';
+      testo = `🏐 Risultato aggiunto: ${esitoTxt} ${escapeHtml(nf.score)} vs ${escapeHtml(nf.opponent)}`;
+    } else if(nf.tipo === 'modifica'){
+      testo = `✏️ Partita modificata: vs ${escapeHtml(nf.opponent)} (G.${nf.giornata}, ${escapeHtml(nf.campionato)})`;
+    } else {
+      testo = '';
+    }
+    return `<div class="notif-item">${testo}<span class="notif-time">${fmtData(nf.data)} · ${nf.ora}</span></div>`;
+  }).join('');
 }
 
 function openAddressList(){
@@ -913,6 +959,8 @@ async function saveMatchInfo(ev, n){
   m.indirizzo = document.getElementById(`eindirizzo-${n}`).value.trim();
   m.citta = document.getElementById(`ecitta-${n}`).value.trim();
   m.prov = document.getElementById(`eprov-${n}`).value.trim().toUpperCase();
+  const opp = m.casa===TEAM ? m.trasferta : m.casa;
+  addNotifica({ tipo: 'modifica', opponent: opp, campionato: m.campionato, giornata: m.giornata });
   editingMatch.delete(n);
   render();
   refreshIfModal(n);
@@ -1045,6 +1093,10 @@ async function saveResult(ev, n){
     esito: setsGv >= 3 ? 'V' : (setsOpp >= 3 ? 'P' : (setsGv > setsOpp ? 'V' : 'P')),
     note: sets.map(s=>`${s.gv}-${s.opp}`).join(', ')
   };
+  {
+    const opp = m.casa===TEAM ? m.trasferta : m.casa;
+    addNotifica({ tipo: 'risultato', opponent: opp, esito: m.risultato.esito, score: m.risultato.score });
+  }
   openForms.delete(n);
   render();
   refreshIfModal(n);
@@ -1071,8 +1123,16 @@ async function loadFromApi(showMsg){
     const res = await fetch(API_URL);
     if(!res.ok) throw new Error('http '+res.status);
     const payload = await res.json();
-    if(!Array.isArray(payload.data)) throw new Error('formato dati inatteso');
-    matches = payload.data;
+    if(Array.isArray(payload.data)){
+      // formato precedente: data.json era un array di partite puro
+      matches = payload.data;
+      notifiche = [];
+    } else if(payload.data && Array.isArray(payload.data.matches)){
+      matches = payload.data.matches;
+      notifiche = Array.isArray(payload.data.notifiche) ? payload.data.notifiche : [];
+    } else {
+      throw new Error('formato dati inatteso');
+    }
     currentSha = payload.sha;
     render();
     if(showMsg) showStatus('Dati aggiornati');
@@ -1088,7 +1148,7 @@ async function persist(){
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newData: matches, sha: currentSha })
+      body: JSON.stringify({ newData: { matches, notifiche }, sha: currentSha })
     });
     const payload = await res.json().catch(()=>({}));
     if(!res.ok){
