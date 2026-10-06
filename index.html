@@ -67,6 +67,9 @@ header{
 .weather-detail{text-align:center; margin-bottom:12px;}
 .weather-icon-big{font-size:2.6rem; line-height:1;}
 .weather-label{color:var(--sub); font-size:.92rem; font-weight:600; margin-top:2px;}
+.classifica-frame{
+  width:100%; height:65vh; border:1px solid var(--line); border-radius:10px; background:#fff;
+}
 .side-menu-slogan{
   margin-top:auto; padding-top:16px; text-align:center; color:var(--sub); font-size:.78rem;
   font-weight:600; line-height:1.5; letter-spacing:.02em;
@@ -341,6 +344,7 @@ form.entry .sets-grid input{
   <div class="side-menu">
     <button class="modal-close" onclick="toggleSideMenu(false)">Chiudi ✕</button>
     <button class="export-btn" onclick="openAddressList()">📍 Indirizzi squadre</button>
+    <button class="export-btn" id="btn-classifica" onclick="openClassifica()">📊 Classifica</button>
     <div class="side-menu-notif">
       <div class="side-menu-notif-title">🔔 Ultimi aggiornamenti</div>
       <div class="notif-list" id="notif-list"></div>
@@ -1004,6 +1008,13 @@ function renderNotifiche(){
     }
     return `<div class="notif-item">${testo}<span class="notif-time">${fmtData(nf.data)} · ${nf.ora}</span></div>`;
   }).join('');
+}
+
+const CLASSIFICA_URL = 'https://srv6.matchshare.it/stats_test/rest_api/fm_classifica?sid=586&client_name=fipavetruria';
+
+function openClassifica(){
+  toggleSideMenu(false);
+  window.open(CLASSIFICA_URL, '_blank', 'noopener');
 }
 
 function openAddressList(){
