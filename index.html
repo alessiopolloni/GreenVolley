@@ -344,7 +344,7 @@ form.entry .sets-grid input{
   <div class="side-menu">
     <button class="modal-close" onclick="toggleSideMenu(false)">Chiudi ✕</button>
     <button class="export-btn" onclick="openAddressList()">📍 Indirizzi squadre</button>
-    <button class="export-btn" id="btn-classifica" onclick="openClassifica()">📊 Classifica</button>
+    <button class="export-btn" onclick="openClassifica()">📊 Classifica FIPAV U14F 2026/2027</button>
     <div class="side-menu-notif">
       <div class="side-menu-notif-title">🔔 Ultimi aggiornamenti</div>
       <div class="notif-list" id="notif-list"></div>
@@ -797,6 +797,14 @@ function openWeatherModal(n){
   document.getElementById('modal-overlay').classList.add('open');
 }
 
+function updateClassificaLabel(){
+  const el = document.getElementById('btn-classifica');
+  if(!el) return;
+  const camp = (selectedCampionato && selectedCampionato!=='tutti') ? selectedCampionato+' ' : '';
+  const stagione = selectedSeason || '';
+  el.textContent = `📊 Classifica ${camp}${stagione}`.trim();
+}
+
 function render(){
   if(view === 'calendario'){
     renderCalendar();
@@ -809,6 +817,7 @@ function render(){
   }
   updateTicker();
   loadWeatherForUpcoming();
+  updateClassificaLabel();
 }
 
 function renderList(){
