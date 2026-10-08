@@ -70,6 +70,11 @@ header{
 .classifica-frame{
   width:100%; height:65vh; border:1px solid var(--line); border-radius:10px; background:#fff;
 }
+.manual-content h2{font-size:1.1rem; margin:0 0 8px;}
+.manual-content h3{font-size:.95rem; margin:16px 0 6px; color:var(--home);}
+.manual-content p{font-size:.88rem; line-height:1.5; margin:4px 0;}
+.manual-content ul{margin:6px 0; padding-left:20px;}
+.manual-content li{font-size:.88rem; line-height:1.5; margin:3px 0;}
 .side-menu-slogan{
   margin-top:auto; padding-top:16px; text-align:center; color:var(--sub); font-size:.78rem;
   font-weight:600; line-height:1.5; letter-spacing:.02em;
@@ -169,6 +174,9 @@ form.entry .sets-grid input{
 .set-icon.won{color:var(--home);}
 .set-icon.lost{color:var(--danger);}
 .set-label.tot, .set-val.tot{border-top:1px dashed var(--line); padding-top:6px; font-weight:700;}
+.set-diff{text-align:center; font-weight:800; font-size:.85rem;}
+.set-diff.won{color:var(--home);}
+.set-diff.lost{color:var(--danger);}
 .esito-banner{
   text-align:center; font-weight:700; padding:8px; border-radius:10px; margin-bottom:10px; font-size:.9rem;
 }
@@ -351,6 +359,7 @@ form.entry .sets-grid input{
     </div>
     <button class="export-btn" onclick="loadFromApi(true)">🔄 Aggiorna dati</button>
     <button class="export-btn" onclick="exportCsv()">⬇️ Esporta tutto in CSV</button>
+    <button class="export-btn" onclick="openManual()">📖 Manuale della app</button>
     <div class="side-menu-slogan">Presenti comunque e dovunque<br>Curva budini molli</div>
   </div>
 </div>
@@ -555,7 +564,7 @@ function matchCardHtml(m, isNext){
         <div class="sets-grid sets-grid-4 readonly">
           <span></span><span class="sets-head">Green Volley</span><span class="sets-head">${escapeHtml(opponent)}</span><span></span>
           ${setsRows}
-          <span class="set-label tot">Totale</span><span class="set-val tot">${totGv}</span><span class="set-val tot">${totOpp}</span><span></span>
+          <span class="set-label tot">Totale</span><span class="set-val tot">${totGv}</span><span class="set-val tot">${totOpp}</span><span class="set-diff tot ${totGv-totOpp>=0?'won':'lost'}">${totGv-totOpp>0?'+':''}${totGv-totOpp}</span>
         </div>
       </div>`;
   } else if(writable && isOpen) {
@@ -1024,6 +1033,51 @@ const CLASSIFICA_URL = 'https://srv6.matchshare.it/stats_test/rest_api/fm_classi
 function openClassifica(){
   toggleSideMenu(false);
   window.open(CLASSIFICA_URL, '_blank', 'noopener');
+}
+
+const MANUAL_HTML = `
+<h2 style="margin-top:0">Manuale d'uso — App Green Volley U14F</h2>
+<p>Guida rapida per genitori: come consultare il calendario, inserire i risultati e usare le altre funzioni della app.</p>
+<h3>Come si apre</h3>
+<p>Basta il link che ti è stato inviato. Si apre nel browser del telefono, non serve installare nulla (anche se puoi, vedi in fondo).</p>
+<h3>Le viste principali</h3>
+<ul>
+  <li><b>Lista</b> — tutte le partite come schede, con tutti i dettagli</li>
+  <li><b>Lista sintetica</b> — stesse partite, in righe compatte: avversaria, casa/trasferta, risultato</li>
+  <li><b>Calendario</b> — vista mensile, i giorni con partita sono evidenziati; tocca un giorno per aprirla</li>
+  <li><b>Statistiche</b> — riepilogo vittorie/sconfitte, grafici, record della stagione e classifica like</li>
+</ul>
+<p>Subito sotto trovi i filtri per <b>stagione</b> e <b>campionato</b>.</p>
+<h3>Inserire o modificare un risultato</h3>
+<p>Sulla scheda di ogni partita giocata trovi <b>"Aggiungi risultato"</b> (o "Modifica"/"Elimina risultato" se c'è già). Inserisci il punteggio set per set: il risultato finale e l'esito si calcolano da soli.</p>
+<p>La prima volta che lo fai nella giornata, l'app chiede una <b>password</b>: è il nome del giorno corrente, con l'iniziale maiuscola (es. di lunedì è "Lunedì"). Va inserita una sola volta al giorno.</p>
+<p>La stessa password serve anche per <b>modificare data, ora o luogo</b> di una partita (pulsante "✏️ Modifica partita").</p>
+<h3>Mettere like o unlike</h3>
+<p>Su ogni scheda ci sono due pulsanti, 👍 e 👎: si vota liberamente, senza password. La prima volta che voti, l'app chiede il nome e lo ricorda per le volte successive.</p>
+<h3>Il meteo</h3>
+<p>Per le partite nei prossimi 15 giorni compare una piccola icona meteo vicino all'orario. Toccandola si apre il dettaglio: temperatura, vento, probabilità di pioggia.</p>
+<h3>Condividere su WhatsApp</h3>
+<p>Ogni scheda ha un pulsante <b>"📲 Condividi su WhatsApp"</b>: prepara un messaggio già pronto con tutti i dati della partita.</p>
+<h3>Il menu con i tre puntini (⋮)</h3>
+<ul>
+  <li><b>📍 Indirizzi squadre</b> — elenco squadre con indirizzo e navigazione Google Maps</li>
+  <li><b>📊 Classifica</b> — apre la classifica ufficiale in un'altra pagina</li>
+  <li><b>🔔 Ultimi aggiornamenti</b> — chi ha messo un like, inserito un risultato o modificato una partita</li>
+  <li><b>🔄 Aggiorna dati</b> — forza il ricaricamento se sospetti nuovi salvataggi</li>
+  <li><b>⬇️ Esporta tutto in CSV</b> — scarica tutte le partite, apribile con Excel</li>
+</ul>
+<h3>Installarla come app sul telefono (facoltativo)</h3>
+<p>Su Android può comparire un banner "Installa l'app". Su iPhone usa il tasto <b>Condividi</b> di Safari e poi <b>"Aggiungi alla schermata Home"</b>.</p>
+<h3>Una nota</h3>
+<p>Tutti i genitori possono modificare i dati (con la password del giorno). È pensata per essere semplice e aperta — un po' di buon senso e va tutto bene.</p>
+`;
+
+function openManual(){
+  toggleSideMenu(false);
+  document.getElementById('modal-sheet').innerHTML =
+    `<button class="modal-close" onclick="closeModal()">Chiudi ✕</button>` +
+    `<div class="manual-content">${MANUAL_HTML}</div>`;
+  document.getElementById('modal-overlay').classList.add('open');
 }
 
 function openAddressList(){
