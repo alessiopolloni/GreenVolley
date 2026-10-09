@@ -1626,6 +1626,35 @@ function renderStatsBySet(pool){
   </div>`;
 }
 
+function renderStatsScoreDist(pool){
+  const counts = {};
+  pool.forEach(m=>{
+    const key = m.risultato.score;
+    (counts[key] = counts[key] || {n:0, esito:m.risultato.esito}).n++;
+  });
+  const entries = Object.keys(counts).map(k=>({score:k, n:counts[k].n, esito:counts[k].esito}));
+  const vittorie = entries.filter(e=>e.esito==='V').sort((a,b)=>{
+    const aOpp = Number(a.score.split('-')[1]), bOpp = Number(b.score.split('-')[1]);
+    return aOpp - bOpp;
+  });
+  const sconfitte = entries.filter(e=>e.esito==='P').sort((a,b)=>{
+    const aGv = Number(a.score.split('-')[0]), bGv = Number(b.score.split('-')[0]);
+    return bGv - aGv;
+  });
+  const totV = vittorie.reduce((s,e)=>s+e.n,0);
+  const totP = sconfitte.reduce((s,e)=>s+e.n,0);
+  const row = e => `<tr><td>${escapeHtml(e.score)}</td><td>${e.n}</td><td>${pct(e.n, e.esito==='V'?totV:totP)}%</td></tr>`;
+  return `<div class="stats-section">
+    <h3>Distribuzione punteggi finali</h3>
+    <table class="stats-table">
+      <tr><th>Risultato</th><th>Partite</th><th>% su vittorie/sconfitte</th></tr>
+      ${vittorie.map(row).join('')}
+      ${sconfitte.map(row).join('')}
+    </table>
+    ${entries.length===0 ? '<p class="readonly-note">Nessun dato disponibile.</p>' : ''}
+  </div>`;
+}
+
 function renderStatsHeadToHead(pool){
   const byOpp = {};
   pool.forEach(m=>{
@@ -1747,6 +1776,7 @@ function renderStats(){
   html += renderStatsTrend(pool);
   html += renderStatsHomeAway(pool);
   html += renderStatsBySet(pool);
+  html += renderStatsScoreDist(pool);
   html += renderStatsHeadToHead(pool);
   if(statSeason==='tutte' || statCampionato==='tutti') html += renderStatsCompare(pool);
   main.innerHTML = html;
