@@ -335,8 +335,8 @@ form.entry .sets-grid input{
   <h1>🏐 ASD Green Volley — U14F</h1>
   <p>Calendario campionato e risultati</p>
   <div class="view-toggle">
-    <button id="btn-lista" onclick="setView('lista')">Lista</button>
-    <button id="btn-sintetica" onclick="setView('sintetica')">Lista sintetica</button>
+    <button id="btn-lista" onclick="setView('lista')">Partite</button>
+    <button id="btn-sintetica" onclick="setView('sintetica')">Elenco</button>
     <button id="btn-calendario" onclick="setView('calendario')">Calendario</button>
     <button id="btn-statistiche" onclick="setView('statistiche')">Statistiche</button>
   </div>
@@ -463,6 +463,7 @@ function setView(v){
   document.getElementById('btn-statistiche').classList.toggle('active', v==='statistiche');
   document.getElementById('btn-sintetica').classList.toggle('active', v==='sintetica');
   if(v === 'calendario') initCalPosition();
+  if(v === 'statistiche') statSeason = selectedSeason;
   render();
 }
 
@@ -896,12 +897,14 @@ function renderCalendar(){
 
   let html = `
     <div class="cal-nav">
+      <button onclick="jumpToMonthWithMatches(-1)" title="Mese precedente con partite">«</button>
       <button onclick="changeMonth(-1)">‹</button>
       <div class="cal-nav-center">
         <h2>${mesi[calMonth]} ${calYear}</h2>
         <button class="btn-today" onclick="goToday()">Oggi</button>
       </div>
       <button onclick="changeMonth(1)">›</button>
+      <button onclick="jumpToMonthWithMatches(1)" title="Mese successivo con partite">»</button>
     </div>
     <div class="cal-grid">
       ${dow.map(d=>`<div class="cal-dow">${d}</div>`).join('')}
@@ -947,6 +950,24 @@ function changeMonth(delta){
   if(calMonth < 0){ calMonth = 11; calYear--; }
   if(calMonth > 11){ calMonth = 0; calYear++; }
   renderCalendar();
+}
+
+function jumpToMonthWithMatches(direction){
+  const pool = filteredMatches();
+  if(pool.length === 0) return;
+  const monthsWithMatches = new Set(pool.map(m => m.data.slice(0,7))); // "YYYY-MM"
+  let month = calMonth, year = calYear;
+  for(let i=0; i<240; i++){ // limite di sicurezza: 20 anni
+    month += direction;
+    if(month < 0){ month = 11; year--; }
+    if(month > 11){ month = 0; year++; }
+    const key = `${year}-${String(month+1).padStart(2,'0')}`;
+    if(monthsWithMatches.has(key)){
+      calMonth = month; calYear = year;
+      renderCalendar();
+      return;
+    }
+  }
 }
 
 function openModal(n){
@@ -1042,18 +1063,18 @@ const MANUAL_HTML = `
 <p>Basta il link che ti è stato inviato. Si apre nel browser del telefono, non serve installare nulla (anche se puoi, vedi in fondo).</p>
 <h3>Le viste principali</h3>
 <ul>
-  <li><b>Lista</b> — tutte le partite come schede, con tutti i dettagli</li>
-  <li><b>Lista sintetica</b> — stesse partite, in righe compatte: avversaria, casa/trasferta, risultato</li>
+  <li><b>Partite</b> — tutte le partite come schede, con tutti i dettagli</li>
+  <li><b>Elenco</b> — stesse partite, in righe compatte: avversaria, casa/trasferta, risultato</li>
   <li><b>Calendario</b> — vista mensile, i giorni con partita sono evidenziati; tocca un giorno per aprirla</li>
-  <li><b>Statistiche</b> — riepilogo vittorie/sconfitte, grafici, record della stagione e classifica like</li>
+  <li><b>Statistiche</b> — riepilogo, grafici, record e classifica like della stagione</li>
 </ul>
 <p>Subito sotto trovi i filtri per <b>stagione</b> e <b>campionato</b>.</p>
+<h3>Il calendario</h3>
+<p>Oltre alle freccette per andare al mese prima/dopo e al tasto <b>"Oggi"</b>, i due pulsanti <b>«</b> e <b>»</b> saltano direttamente al mese precedente o successivo in cui c'è almeno una partita, senza doversi fermare sui mesi vuoti.</p>
 <h3>Inserire o modificare un risultato</h3>
-<p>Sulla scheda di ogni partita giocata trovi <b>"Aggiungi risultato"</b> (o "Modifica"/"Elimina risultato" se c'è già). Inserisci il punteggio set per set: il risultato finale e l'esito si calcolano da soli.</p>
-<p>La prima volta che lo fai nella giornata, l'app chiede una <b>password</b>: è il nome del giorno corrente, con l'iniziale maiuscola (es. di lunedì è "Lunedì"). Va inserita una sola volta al giorno.</p>
-<p>La stessa password serve anche per <b>modificare data, ora o luogo</b> di una partita (pulsante "✏️ Modifica partita").</p>
+<p>Sulla scheda di ogni partita giocata trovi <b>"Aggiungi risultato"</b> (o "Modifica"/"Elimina risultato" se c'è già). Inserisci il punteggio set per set: il risultato finale e l'esito si calcolano da soli. Lo stesso vale per <b>"✏️ Modifica partita"</b>, se serve correggere data, ora o luogo.</p>
 <h3>Mettere like o unlike</h3>
-<p>Su ogni scheda ci sono due pulsanti, 👍 e 👎: si vota liberamente, senza password. La prima volta che voti, l'app chiede il nome e lo ricorda per le volte successive.</p>
+<p>Su ogni scheda ci sono due pulsanti, 👍 e 👎: si vota liberamente. La prima volta che voti, l'app chiede il nome e lo ricorda per le volte successive.</p>
 <h3>Il meteo</h3>
 <p>Per le partite nei prossimi 15 giorni compare una piccola icona meteo vicino all'orario. Toccandola si apre il dettaglio: temperatura, vento, probabilità di pioggia.</p>
 <h3>Condividere su WhatsApp</h3>
@@ -1066,10 +1087,30 @@ const MANUAL_HTML = `
   <li><b>🔄 Aggiorna dati</b> — forza il ricaricamento se sospetti nuovi salvataggi</li>
   <li><b>⬇️ Esporta tutto in CSV</b> — scarica tutte le partite, apribile con Excel</li>
 </ul>
+<h3>Le sezioni delle Statistiche</h3>
+<p>Entrando in Statistiche, la stagione selezionata è già quella che stavi guardando; puoi comunque cambiarla o passare a "Tutte le stagioni" dai due filtri in alto. Le sezioni, in ordine:</p>
+<ul>
+  <li><b>Riepilogo generale</b> — numero di partite, vittorie, sconfitte, % vittorie, set e punti totali fatti/subiti.</li>
+  <li><b>Badge e record</b> — primati automatici: striscia di vittorie più lunga, striscia in corso, miglior rimonta, prima vittoria netta, vittoria col maggior scarto di punti, set più combattuto, avversario battuto più spesso.</li>
+  <li><b>Like alle partite</b> — totale like/unlike, media like per partita votata, le 5 partite più apprezzate e quella più contestata.</li>
+  <li><b>Andamento nel tempo</b> — quattro grafici in sequenza, con una <b>media mobile</b> (configurabile su 3, 5 o 10 partite) che addolcisce l'andamento per capire se la squadra sta migliorando, peggiorando o è stabile:
+    <ul>
+      <li>esito di ogni partita (vinta/persa) nel tempo;</li>
+      <li>punti fatti e subiti partita per partita;</li>
+      <li>differenza punti (fatti meno subiti) e sua media mobile;</li>
+      <li>set vinti a partita e sua media mobile.</li>
+    </ul>
+  </li>
+  <li><b>Casa vs Trasferta</b> — % di vittorie, punti e set medi, confrontando le partite giocate in casa con quelle fuori.</li>
+  <li><b>Analisi per set</b> — per ciascun set (1°-5°) quante volte è stato vinto o perso e il punteggio medio, con il set "più critico" evidenziato e il bilancio delle partite arrivate al tie-break.</li>
+  <li><b>Distribuzione punteggi finali</b> — quante partite sono finite 3-0, 3-1, 3-2 (o 2-3, 1-3, 0-3 per le sconfitte), con la relativa percentuale.</li>
+  <li><b>Scontri diretti</b> — l'elenco delle squadre avversarie con il bilancio vittorie-sconfitte; tocca una squadra per vedere lo storico partita per partita.</li>
+  <li><b>Confronto stagioni/campionati</b> — compare solo scegliendo "Tutte le stagioni" o "Tutti i campionati": mette a confronto le % di vittoria tra le diverse stagioni o i diversi campionati.</li>
+</ul>
 <h3>Installarla come app sul telefono (facoltativo)</h3>
 <p>Su Android può comparire un banner "Installa l'app". Su iPhone usa il tasto <b>Condividi</b> di Safari e poi <b>"Aggiungi alla schermata Home"</b>.</p>
 <h3>Una nota</h3>
-<p>Tutti i genitori possono modificare i dati (con la password del giorno). È pensata per essere semplice e aperta — un po' di buon senso e va tutto bene.</p>
+<p>È pensata per essere semplice e aperta all'uso di tutti i genitori — un po' di buon senso e va tutto bene.</p>
 `;
 
 function openManual(){
