@@ -1105,11 +1105,15 @@
           {
             "gv": 10,
             "opp": 25
+          },
+          {
+            "gv": 12,
+            "opp": 25
           }
         ],
-        "score": "0-1",
+        "score": "0-2",
         "esito": "P",
-        "note": "10-25"
+        "note": "10-25, 12-25"
       },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
@@ -1281,6 +1285,14 @@
     }
   ],
   "notifiche": [
+    {
+      "data": "2026-10-11",
+      "ora": "15:44",
+      "tipo": "risultato",
+      "opponent": "CAPOLONA-SUBBIANO PALLAVOLO",
+      "esito": "P",
+      "score": "0-2"
+    },
     {
       "data": "2026-10-11",
       "ora": "15:23",
