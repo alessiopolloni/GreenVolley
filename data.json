@@ -1120,7 +1120,10 @@
         "note": "10-25, 12-25, 7-25"
       },
       "stagione": "2026/2027",
-      "campionato": "FIPAV U14F"
+      "campionato": "FIPAV U14F",
+      "voti": {
+        "Alessio": "unlike"
+      }
     },
     {
       "n": "s2026_2027_fipav_u14f_14245",
@@ -1289,6 +1292,13 @@
     }
   ],
   "notifiche": [
+    {
+      "data": "2026-10-11",
+      "ora": "16:23",
+      "tipo": "unlike",
+      "nome": "Alessio",
+      "opponent": "CAPOLONA-SUBBIANO PALLAVOLO"
+    },
     {
       "data": "2026-10-11",
       "ora": "16:08",
