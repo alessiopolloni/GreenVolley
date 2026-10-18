@@ -1156,7 +1156,10 @@
         "note": "17-25, 12-25, 17-25"
       },
       "stagione": "2026/2027",
-      "campionato": "FIPAV U14F"
+      "campionato": "FIPAV U14F",
+      "voti": {
+        "Alessio": "like"
+      }
     },
     {
       "n": "s2026_2027_fipav_u14f_14249",
@@ -1310,6 +1313,13 @@
     }
   ],
   "notifiche": [
+    {
+      "data": "2026-10-18",
+      "ora": "20:21",
+      "tipo": "like",
+      "nome": "Alessio",
+      "opponent": "CLUB AREZZO 14F 2013 ROSA"
+    },
     {
       "data": "2026-10-18",
       "ora": "15:32",
