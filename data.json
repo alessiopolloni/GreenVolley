@@ -1141,11 +1141,15 @@
           {
             "gv": 17,
             "opp": 25
+          },
+          {
+            "gv": 12,
+            "opp": 25
           }
         ],
-        "score": "0-1",
+        "score": "0-2",
         "esito": "P",
-        "note": "17-25"
+        "note": "17-25, 12-25"
       },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
@@ -1302,6 +1306,14 @@
     }
   ],
   "notifiche": [
+    {
+      "data": "2026-10-18",
+      "ora": "15:07",
+      "tipo": "risultato",
+      "opponent": "CLUB AREZZO 14F 2013 ROSA",
+      "esito": "P",
+      "score": "0-2"
+    },
     {
       "data": "2026-10-18",
       "ora": "14:43",
