@@ -1182,11 +1182,19 @@
           {
             "gv": 25,
             "opp": 23
+          },
+          {
+            "gv": 21,
+            "opp": 25
+          },
+          {
+            "gv": 25,
+            "opp": 21
           }
         ],
-        "score": "2-0",
+        "score": "3-1",
         "esito": "V",
-        "note": "25-17, 25-23"
+        "note": "25-17, 25-23, 21-25, 25-21"
       },
       "stagione": "2026/2027",
       "campionato": "UISP U14F"
@@ -1484,6 +1492,14 @@
       "tipo": "risultato",
       "opponent": "SAN QUIRICO VOLLEY",
       "esito": "V",
+      "score": "3-1"
+    },
+    {
+      "data": "2026-10-24",
+      "ora": "20:56",
+      "tipo": "risultato",
+      "opponent": "SAN QUIRICO VOLLEY",
+      "esito": "V",
       "score": "2-0"
     },
     {
@@ -1546,14 +1562,6 @@
       "opponent": "CAPOLONA-SUBBIANO PALLAVOLO",
       "esito": "P",
       "score": "0-2"
-    },
-    {
-      "data": "2026-10-11",
-      "ora": "15:23",
-      "tipo": "risultato",
-      "opponent": "CAPOLONA-SUBBIANO PALLAVOLO",
-      "esito": "P",
-      "score": "0-1"
     }
   ]
 }
