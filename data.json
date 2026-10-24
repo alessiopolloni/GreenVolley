@@ -1158,7 +1158,8 @@
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F",
       "voti": {
-        "Alessio": "like"
+        "Alessio": "like",
+        "Sandra": "like"
       }
     },
     {
@@ -1313,6 +1314,13 @@
     }
   ],
   "notifiche": [
+    {
+      "data": "2026-10-24",
+      "ora": "08:31",
+      "tipo": "like",
+      "nome": "Sandra",
+      "opponent": "CLUB AREZZO 14F 2013 ROSA"
+    },
     {
       "data": "2026-10-18",
       "ora": "20:21",
