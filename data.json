@@ -1163,6 +1163,21 @@
       }
     },
     {
+      "n": "s2026_2027_uisp_01",
+      "giornata": 1,
+      "data": "2026-10-24",
+      "ora": "15:00",
+      "casa": "ASD GREEN VOLLEY",
+      "trasferta": "SAN QUIRICO VOLLEY",
+      "impianto": "PALAZZETTO SPORT LEVANE",
+      "indirizzo": "VIA TOGLIATTI LOC LEVANE",
+      "citta": "Bucine",
+      "prov": "AR",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
+    },
+    {
       "n": "s2026_2027_fipav_u14f_14249",
       "giornata": 3,
       "data": "2026-10-25",
@@ -1176,6 +1191,21 @@
       "risultato": null,
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
+    },
+    {
+      "n": "s2026_2027_uisp_02",
+      "giornata": 2,
+      "data": "2026-11-01",
+      "ora": "15:00",
+      "casa": "ASD GREEN VOLLEY",
+      "trasferta": "BVS EURORIPOLI",
+      "impianto": "PALAZZETTO SPORT LEVANE",
+      "indirizzo": "VIA TOGLIATTI LOC LEVANE",
+      "citta": "Bucine",
+      "prov": "AR",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
     },
     {
       "n": "s2026_2027_fipav_u14f_14256",
@@ -1193,6 +1223,21 @@
       "campionato": "FIPAV U14F"
     },
     {
+      "n": "s2026_2027_uisp_03",
+      "giornata": 3,
+      "data": "2026-11-08",
+      "ora": "11:00",
+      "casa": "V.B. VOLLEY MUGELLO GIALLA",
+      "trasferta": "ASD GREEN VOLLEY",
+      "impianto": "PALAZZETTO",
+      "indirizzo": "VIA VIVALDI LOC. IL PARETAIO ZONA NUOVA",
+      "citta": "Vicchio",
+      "prov": "FI",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
+    },
+    {
       "n": "s2026_2027_fipav_u14f_14259",
       "giornata": 6,
       "data": "2026-11-11",
@@ -1206,6 +1251,21 @@
       "risultato": null,
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
+    },
+    {
+      "n": "s2026_2027_uisp_05",
+      "giornata": 5,
+      "data": "2026-11-21",
+      "ora": "15:30",
+      "casa": "RINASCITA VOLLEY BLU",
+      "trasferta": "ASD GREEN VOLLEY",
+      "impianto": "PAL. S.M. \"CARDUCCI\"",
+      "indirizzo": "VIALE CALATAFIMI",
+      "citta": "Firenze",
+      "prov": "FI",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
     },
     {
       "n": "s2026_2027_fipav_u14f_14261",
@@ -1238,6 +1298,36 @@
       "campionato": "FIPAV U14F"
     },
     {
+      "n": "s2026_2027_uisp_06",
+      "giornata": 6,
+      "data": "2026-12-05",
+      "ora": "18:00",
+      "casa": "SAN QUIRICO VOLLEY",
+      "trasferta": "ASD GREEN VOLLEY",
+      "impianto": "PAL. S.E. \"DON MILANI\"",
+      "indirizzo": "P.ZZA DOLCI 1",
+      "citta": "Firenze",
+      "prov": "FI",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
+    },
+    {
+      "n": "s2026_2027_uisp_04",
+      "giornata": 4,
+      "data": "2026-12-06",
+      "ora": "15:30",
+      "casa": "ASD GREEN VOLLEY",
+      "trasferta": "POL. SIECI",
+      "impianto": "PALAZZETTO SPORT LEVANE",
+      "indirizzo": "VIA TOGLIATTI LOC LEVANE",
+      "citta": "Bucine",
+      "prov": "AR",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
+    },
+    {
       "n": "s2026_2027_fipav_u14f_14266",
       "giornata": 9,
       "data": "2026-12-09",
@@ -1251,6 +1341,21 @@
       "risultato": null,
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
+    },
+    {
+      "n": "s2026_2027_uisp_07",
+      "giornata": 7,
+      "data": "2026-12-12",
+      "ora": "15:30",
+      "casa": "BVS EURORIPOLI",
+      "trasferta": "ASD GREEN VOLLEY",
+      "impianto": "PALLONE GEODETICO",
+      "indirizzo": "VIA ISONZO 26/A",
+      "citta": "Sorgane",
+      "prov": "FI",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
     },
     {
       "n": "s2026_2027_fipav_u14f_14270",
@@ -1268,6 +1373,21 @@
       "campionato": "FIPAV U14F"
     },
     {
+      "n": "s2026_2027_uisp_08",
+      "giornata": 8,
+      "data": "2026-12-20",
+      "ora": "15:00",
+      "casa": "ASD GREEN VOLLEY",
+      "trasferta": "V.B. VOLLEY MUGELLO GIALLA",
+      "impianto": "PALAZZETTO SPORT LEVANE",
+      "indirizzo": "VIA TOGLIATTI LOC LEVANE",
+      "citta": "Bucine",
+      "prov": "AR",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
+    },
+    {
       "n": "s2026_2027_fipav_u14f_14277",
       "giornata": 12,
       "data": "2027-01-06",
@@ -1283,6 +1403,21 @@
       "campionato": "FIPAV U14F"
     },
     {
+      "n": "s2026_2027_uisp_09",
+      "giornata": 9,
+      "data": "2027-01-09",
+      "ora": "15:30",
+      "casa": "POL. SIECI",
+      "trasferta": "ASD GREEN VOLLEY",
+      "impianto": "PAL. COM.",
+      "indirizzo": "P.ZZA ALBIZI",
+      "citta": "Sieci",
+      "prov": "FI",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
+    },
+    {
       "n": "s2026_2027_fipav_u14f_14280",
       "giornata": 13,
       "data": "2027-01-10",
@@ -1296,6 +1431,21 @@
       "risultato": null,
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
+    },
+    {
+      "n": "s2026_2027_uisp_10",
+      "giornata": 10,
+      "data": "2027-01-16",
+      "ora": "16:00",
+      "casa": "ASD GREEN VOLLEY",
+      "trasferta": "RINASCITA VOLLEY BLU",
+      "impianto": "PALAZZETTO SPORT LEVANE",
+      "indirizzo": "VIA TOGLIATTI LOC LEVANE",
+      "citta": "Bucine",
+      "prov": "AR",
+      "risultato": null,
+      "stagione": "2026/2027",
+      "campionato": "UISP U14F"
     },
     {
       "n": "s2026_2027_fipav_u14f_14282",
