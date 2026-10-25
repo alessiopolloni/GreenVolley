@@ -629,7 +629,7 @@ function matchCardHtml(m, isNext){
   }
 
   return `
-    <div class="card ${isNext ? 'next':''}">
+    <div class="card ${isNext ? 'next':''}" id="card-${m.n}">
       <div class="row-top">
         <span class="giornata">Giornata ${m.giornata}</span>
         <span class="badge ${badgeClass}">${badgeLabel}</span>
@@ -832,6 +832,13 @@ function render(){
   updateTicker();
   loadWeatherForUpcoming();
   updateClassificaLabel();
+}
+
+function scrollToNextMatch(){
+  const nextN = nextMatchN();
+  if(!nextN) return;
+  const el = document.getElementById('card-'+nextN);
+  if(el) el.scrollIntoView({ block: 'start' });
 }
 
 function renderList(){
@@ -1360,6 +1367,12 @@ const API_URL = '/api/data';
 let currentSha = null; // "sha" del file data.json su GitHub, serve per evitare sovrascritture
 
 async function loadFromApi(showMsg){
+  if(!showMsg && (openForms.size > 0 || editingMatch.size > 0)){
+    // c'è un form di risultato o di modifica partita aperto: non ricarico/ridisegno
+    // in automatico per non far perdere quello che si sta scrivendo. Un aggiornamento
+    // richiesto esplicitamente (pulsante "Aggiorna dati", showMsg true) passa comunque.
+    return true;
+  }
   try{
     const res = await fetch(API_URL);
     if(!res.ok) throw new Error('http '+res.status);
@@ -1982,6 +1995,7 @@ document.getElementById('btn-lista').classList.add('active');
   initFilters();
   initCalPosition();
   render();
+  if(view === 'lista') setTimeout(scrollToNextMatch, 0);
   setInterval(()=>loadFromApi(false), 20000); // auto-refresh ogni 20s
 })();
 </script>
