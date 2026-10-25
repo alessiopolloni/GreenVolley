@@ -1234,7 +1234,10 @@
         "note": "25-20, 25-18, 25-8"
       },
       "stagione": "2026/2027",
-      "campionato": "FIPAV U14F"
+      "campionato": "FIPAV U14F",
+      "voti": {
+        "Alessio": "like"
+      }
     },
     {
       "n": "s2026_2027_uisp_02",
@@ -1511,6 +1514,13 @@
     {
       "data": "2026-10-25",
       "ora": "20:33",
+      "tipo": "like",
+      "nome": "Alessio",
+      "opponent": "U14F SAVINESE PINK"
+    },
+    {
+      "data": "2026-10-25",
+      "ora": "20:33",
       "tipo": "risultato",
       "opponent": "U14F SAVINESE PINK",
       "esito": "V",
@@ -1575,14 +1585,6 @@
       "tipo": "like",
       "nome": "Alessio",
       "opponent": "CLUB AREZZO 14F 2013 ROSA"
-    },
-    {
-      "data": "2026-10-18",
-      "ora": "15:32",
-      "tipo": "risultato",
-      "opponent": "CLUB AREZZO 14F 2013 ROSA",
-      "esito": "P",
-      "score": "0-3"
     }
   ]
 }
