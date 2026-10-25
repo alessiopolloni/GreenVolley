@@ -1199,7 +1199,8 @@
       "stagione": "2026/2027",
       "campionato": "UISP U14F",
       "voti": {
-        "Alessio": "like"
+        "Alessio": "like",
+        "alessia": "like"
       }
     },
     {
@@ -1490,6 +1491,13 @@
   ],
   "notifiche": [
     {
+      "data": "2026-10-25",
+      "ora": "12:22",
+      "tipo": "like",
+      "nome": "alessia",
+      "opponent": "SAN QUIRICO VOLLEY"
+    },
+    {
       "data": "2026-10-24",
       "ora": "20:58",
       "tipo": "like",
@@ -1556,14 +1564,6 @@
       "tipo": "unlike",
       "nome": "Alessio",
       "opponent": "CAPOLONA-SUBBIANO PALLAVOLO"
-    },
-    {
-      "data": "2026-10-11",
-      "ora": "16:08",
-      "tipo": "risultato",
-      "opponent": "CAPOLONA-SUBBIANO PALLAVOLO",
-      "esito": "P",
-      "score": "0-3"
     }
   ]
 }
