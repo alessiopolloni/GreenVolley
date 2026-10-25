@@ -1214,7 +1214,17 @@
       "indirizzo": "VIA TOGLIATTI LOC LEVANE",
       "citta": "Bucine",
       "prov": "AR",
-      "risultato": null,
+      "risultato": {
+        "sets": [
+          {
+            "gv": 25,
+            "opp": 20
+          }
+        ],
+        "score": "1-0",
+        "esito": "V",
+        "note": "25-20"
+      },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
     },
@@ -1492,6 +1502,14 @@
   "notifiche": [
     {
       "data": "2026-10-25",
+      "ora": "20:32",
+      "tipo": "risultato",
+      "opponent": "U14F SAVINESE PINK",
+      "esito": "V",
+      "score": "1-0"
+    },
+    {
+      "data": "2026-10-25",
       "ora": "12:22",
       "tipo": "like",
       "nome": "alessia",
@@ -1557,13 +1575,6 @@
       "opponent": "CLUB AREZZO 14F 2013 ROSA",
       "esito": "P",
       "score": "0-1"
-    },
-    {
-      "data": "2026-10-11",
-      "ora": "16:24",
-      "tipo": "unlike",
-      "nome": "Alessio",
-      "opponent": "CAPOLONA-SUBBIANO PALLAVOLO"
     }
   ]
 }
