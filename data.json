@@ -1237,7 +1237,8 @@
       "campionato": "FIPAV U14F",
       "voti": {
         "Alessio": "like",
-        "alessia": "like"
+        "alessia": "like",
+        "christian": "like"
       }
     },
     {
@@ -1514,6 +1515,13 @@
   "notifiche": [
     {
       "data": "2026-10-25",
+      "ora": "22:41",
+      "tipo": "like",
+      "nome": "christian",
+      "opponent": "U14F SAVINESE PINK"
+    },
+    {
+      "data": "2026-10-25",
       "ora": "20:34",
       "tipo": "like",
       "nome": "alessia",
@@ -1579,13 +1587,6 @@
       "opponent": "SAN QUIRICO VOLLEY",
       "esito": "V",
       "score": "2-0"
-    },
-    {
-      "data": "2026-10-24",
-      "ora": "08:31",
-      "tipo": "like",
-      "nome": "Sandra",
-      "opponent": "CLUB AREZZO 14F 2013 ROSA"
     }
   ]
 }
