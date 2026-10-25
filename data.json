@@ -1219,11 +1219,15 @@
           {
             "gv": 25,
             "opp": 20
+          },
+          {
+            "gv": 25,
+            "opp": 18
           }
         ],
-        "score": "1-0",
+        "score": "2-0",
         "esito": "V",
-        "note": "25-20"
+        "note": "25-20, 25-18"
       },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
@@ -1502,6 +1506,14 @@
   "notifiche": [
     {
       "data": "2026-10-25",
+      "ora": "20:33",
+      "tipo": "risultato",
+      "opponent": "U14F SAVINESE PINK",
+      "esito": "V",
+      "score": "2-0"
+    },
+    {
+      "data": "2026-10-25",
       "ora": "20:32",
       "tipo": "risultato",
       "opponent": "U14F SAVINESE PINK",
@@ -1567,14 +1579,6 @@
       "opponent": "CLUB AREZZO 14F 2013 ROSA",
       "esito": "P",
       "score": "0-2"
-    },
-    {
-      "data": "2026-10-18",
-      "ora": "14:43",
-      "tipo": "risultato",
-      "opponent": "CLUB AREZZO 14F 2013 ROSA",
-      "esito": "P",
-      "score": "0-1"
     }
   ]
 }
