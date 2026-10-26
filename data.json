@@ -1238,7 +1238,8 @@
       "voti": {
         "Alessio": "like",
         "alessia": "like",
-        "christian": "like"
+        "christian": "like",
+        "Sandra": "like"
       }
     },
     {
@@ -1514,6 +1515,13 @@
   ],
   "notifiche": [
     {
+      "data": "2026-10-26",
+      "ora": "21:36",
+      "tipo": "like",
+      "nome": "Sandra",
+      "opponent": "U14F SAVINESE PINK"
+    },
+    {
       "data": "2026-10-25",
       "ora": "22:41",
       "tipo": "like",
@@ -1579,14 +1587,6 @@
       "opponent": "SAN QUIRICO VOLLEY",
       "esito": "V",
       "score": "3-1"
-    },
-    {
-      "data": "2026-10-24",
-      "ora": "20:56",
-      "tipo": "risultato",
-      "opponent": "SAN QUIRICO VOLLEY",
-      "esito": "V",
-      "score": "2-0"
     }
   ]
 }
