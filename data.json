@@ -1160,7 +1160,8 @@
       "campionato": "FIPAV U14F",
       "voti": {
         "Alessio": "like",
-        "Sandra": "like"
+        "Sandra": "like",
+        "gaia": "like"
       }
     },
     {
@@ -1518,6 +1519,13 @@
     {
       "data": "2026-10-28",
       "ora": "20:25",
+      "tipo": "like",
+      "nome": "gaia",
+      "opponent": "CLUB AREZZO 14F 2013 ROSA"
+    },
+    {
+      "data": "2026-10-28",
+      "ora": "20:25",
       "tipo": "unlike",
       "nome": "gaia",
       "opponent": "CAPOLONA-SUBBIANO PALLAVOLO"
@@ -1579,13 +1587,6 @@
       "ora": "12:22",
       "tipo": "like",
       "nome": "alessia",
-      "opponent": "SAN QUIRICO VOLLEY"
-    },
-    {
-      "data": "2026-10-24",
-      "ora": "20:58",
-      "tipo": "like",
-      "nome": "Alessio",
       "opponent": "SAN QUIRICO VOLLEY"
     }
   ]
