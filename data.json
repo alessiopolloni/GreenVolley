@@ -1202,7 +1202,8 @@
       "campionato": "UISP U14F",
       "voti": {
         "Alessio": "like",
-        "alessia": "like"
+        "alessia": "like",
+        "gaia": "like"
       }
     },
     {
@@ -1521,6 +1522,13 @@
       "ora": "20:25",
       "tipo": "like",
       "nome": "gaia",
+      "opponent": "SAN QUIRICO VOLLEY"
+    },
+    {
+      "data": "2026-10-28",
+      "ora": "20:25",
+      "tipo": "like",
+      "nome": "gaia",
       "opponent": "CLUB AREZZO 14F 2013 ROSA"
     },
     {
@@ -1581,13 +1589,6 @@
       "opponent": "U14F SAVINESE PINK",
       "esito": "V",
       "score": "1-0"
-    },
-    {
-      "data": "2026-10-25",
-      "ora": "12:22",
-      "tipo": "like",
-      "nome": "alessia",
-      "opponent": "SAN QUIRICO VOLLEY"
     }
   ]
 }
