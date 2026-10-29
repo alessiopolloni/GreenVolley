@@ -1244,7 +1244,8 @@
         "alessia": "like",
         "christian": "like",
         "Sandra": "like",
-        "claudio": "like"
+        "claudio": "like",
+        "Mia": "like"
       }
     },
     {
@@ -1521,6 +1522,13 @@
   "notifiche": [
     {
       "data": "2026-10-29",
+      "ora": "19:46",
+      "tipo": "like",
+      "nome": "Mia",
+      "opponent": "U14F SAVINESE PINK"
+    },
+    {
+      "data": "2026-10-29",
       "ora": "19:31",
       "tipo": "like",
       "nome": "claudio",
@@ -1581,14 +1589,6 @@
       "tipo": "like",
       "nome": "Alessio",
       "opponent": "U14F SAVINESE PINK"
-    },
-    {
-      "data": "2026-10-25",
-      "ora": "20:33",
-      "tipo": "risultato",
-      "opponent": "U14F SAVINESE PINK",
-      "esito": "V",
-      "score": "3-0"
     }
   ]
 }
