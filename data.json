@@ -1205,7 +1205,8 @@
         "alessia": "like",
         "gaia": "like",
         "claudio": "like",
-        "Mia": "like"
+        "Mia": "like",
+        "Cristiano": "like"
       }
     },
     {
@@ -1527,6 +1528,13 @@
       "ora": "19:49",
       "tipo": "like",
       "nome": "Cristiano",
+      "opponent": "SAN QUIRICO VOLLEY"
+    },
+    {
+      "data": "2026-10-29",
+      "ora": "19:49",
+      "tipo": "like",
+      "nome": "Cristiano",
       "opponent": "U14F SAVINESE PINK"
     },
     {
@@ -1584,13 +1592,6 @@
       "tipo": "unlike",
       "nome": "gaia",
       "opponent": "CAPOLONA-SUBBIANO PALLAVOLO"
-    },
-    {
-      "data": "2026-10-26",
-      "ora": "21:36",
-      "tipo": "like",
-      "nome": "Sandra",
-      "opponent": "U14F SAVINESE PINK"
     }
   ]
 }
