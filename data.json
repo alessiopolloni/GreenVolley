@@ -1533,6 +1533,13 @@
       "ora": "19:46",
       "tipo": "like",
       "nome": "Mia",
+      "opponent": "SAN QUIRICO VOLLEY"
+    },
+    {
+      "data": "2026-10-29",
+      "ora": "19:46",
+      "tipo": "like",
+      "nome": "Mia",
       "opponent": "U14F SAVINESE PINK"
     },
     {
@@ -1582,13 +1589,6 @@
       "ora": "22:41",
       "tipo": "like",
       "nome": "christian",
-      "opponent": "U14F SAVINESE PINK"
-    },
-    {
-      "data": "2026-10-25",
-      "ora": "20:34",
-      "tipo": "like",
-      "nome": "alessia",
       "opponent": "U14F SAVINESE PINK"
     }
   ]
