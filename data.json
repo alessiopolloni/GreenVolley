@@ -1271,11 +1271,15 @@
           {
             "gv": 14,
             "opp": 25
+          },
+          {
+            "gv": 25,
+            "opp": 16
           }
         ],
-        "score": "1-1",
-        "esito": "P",
-        "note": "25-17, 14-25"
+        "score": "2-1",
+        "esito": "V",
+        "note": "25-17, 14-25, 25-16"
       },
       "stagione": "2026/2027",
       "campionato": "UISP U14F"
@@ -1539,6 +1543,14 @@
   "notifiche": [
     {
       "data": "2026-11-01",
+      "ora": "16:10",
+      "tipo": "risultato",
+      "opponent": "BVS EURORIPOLI",
+      "esito": "V",
+      "score": "2-1"
+    },
+    {
+      "data": "2026-11-01",
       "ora": "15:44",
       "tipo": "risultato",
       "opponent": "BVS EURORIPOLI",
@@ -1601,13 +1613,6 @@
       "tipo": "like",
       "nome": "claudio",
       "opponent": "U14F SAVINESE PINK"
-    },
-    {
-      "data": "2026-10-28",
-      "ora": "20:25",
-      "tipo": "like",
-      "nome": "gaia",
-      "opponent": "SAN QUIRICO VOLLEY"
     }
   ]
 }
