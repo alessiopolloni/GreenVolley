@@ -1289,7 +1289,8 @@
       "stagione": "2026/2027",
       "campionato": "UISP U14F",
       "voti": {
-        "Alessio": "like"
+        "Alessio": "like",
+        "francesca": "like"
       }
     },
     {
@@ -1554,6 +1555,13 @@
       "ora": "09:45",
       "tipo": "like",
       "nome": "francesca",
+      "opponent": "BVS EURORIPOLI"
+    },
+    {
+      "data": "2026-11-03",
+      "ora": "09:45",
+      "tipo": "like",
+      "nome": "francesca",
       "opponent": "SAN QUIRICO VOLLEY"
     },
     {
@@ -1615,13 +1623,6 @@
       "tipo": "like",
       "nome": "Cristiano",
       "opponent": "U14F SAVINESE PINK"
-    },
-    {
-      "data": "2026-10-29",
-      "ora": "19:46",
-      "tipo": "like",
-      "nome": "Mia",
-      "opponent": "SAN QUIRICO VOLLEY"
     }
   ]
 }
