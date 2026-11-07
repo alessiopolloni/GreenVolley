@@ -1304,7 +1304,17 @@
       "indirizzo": "VIALE MATTEOTTI 45/6",
       "citta": "Montevarchi",
       "prov": "AR",
-      "risultato": null,
+      "risultato": {
+        "sets": [
+          {
+            "gv": 25,
+            "opp": 20
+          }
+        ],
+        "score": "1-0",
+        "esito": "V",
+        "note": "25-20"
+      },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
     },
@@ -1554,6 +1564,14 @@
   ],
   "notifiche": [
     {
+      "data": "2026-11-07",
+      "ora": "17:55",
+      "tipo": "risultato",
+      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU",
+      "esito": "V",
+      "score": "1-0"
+    },
+    {
       "data": "2026-11-05",
       "ora": "06:34",
       "tipo": "unlike",
@@ -1619,13 +1637,6 @@
       "opponent": "BVS EURORIPOLI",
       "esito": "V",
       "score": "1-0"
-    },
-    {
-      "data": "2026-10-29",
-      "ora": "19:49",
-      "tipo": "like",
-      "nome": "Cristiano",
-      "opponent": "SAN QUIRICO VOLLEY"
     }
   ]
 }
