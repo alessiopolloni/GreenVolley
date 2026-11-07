@@ -1328,7 +1328,10 @@
         "note": "25-20, 22-25, 21-25, 17-25"
       },
       "stagione": "2026/2027",
-      "campionato": "FIPAV U14F"
+      "campionato": "FIPAV U14F",
+      "voti": {
+        "claudio": "like"
+      }
     },
     {
       "n": "s2026_2027_uisp_03",
@@ -1577,6 +1580,13 @@
   "notifiche": [
     {
       "data": "2026-11-07",
+      "ora": "19:36",
+      "tipo": "like",
+      "nome": "claudio",
+      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
+    },
+    {
+      "data": "2026-11-07",
       "ora": "19:20",
       "tipo": "risultato",
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU",
@@ -1641,14 +1651,6 @@
       "tipo": "like",
       "nome": "Alessio",
       "opponent": "BVS EURORIPOLI"
-    },
-    {
-      "data": "2026-11-01",
-      "ora": "16:41",
-      "tipo": "risultato",
-      "opponent": "BVS EURORIPOLI",
-      "esito": "V",
-      "score": "3-1"
     }
   ]
 }
