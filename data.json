@@ -1345,7 +1345,17 @@
       "indirizzo": "VIA VIVALDI LOC. IL PARETAIO ZONA NUOVA",
       "citta": "Vicchio",
       "prov": "FI",
-      "risultato": null,
+      "risultato": {
+        "sets": [
+          {
+            "gv": 25,
+            "opp": 19
+          }
+        ],
+        "score": "1-0",
+        "esito": "V",
+        "note": "25-19"
+      },
       "stagione": "2026/2027",
       "campionato": "UISP U14F"
     },
@@ -1580,6 +1590,14 @@
   ],
   "notifiche": [
     {
+      "data": "2026-11-08",
+      "ora": "11:27",
+      "tipo": "risultato",
+      "opponent": "V.B. VOLLEY MUGELLO GIALLA",
+      "esito": "V",
+      "score": "1-0"
+    },
+    {
       "data": "2026-11-07",
       "ora": "20:10",
       "tipo": "like",
@@ -1645,13 +1663,6 @@
       "tipo": "like",
       "nome": "francesca",
       "opponent": "SAN QUIRICO VOLLEY"
-    },
-    {
-      "data": "2026-11-01",
-      "ora": "20:21",
-      "tipo": "like",
-      "nome": "claudio",
-      "opponent": "BVS EURORIPOLI"
     }
   ]
 }
