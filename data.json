@@ -1350,11 +1350,15 @@
           {
             "gv": 25,
             "opp": 19
+          },
+          {
+            "gv": 26,
+            "opp": 24
           }
         ],
-        "score": "1-0",
+        "score": "2-0",
         "esito": "V",
-        "note": "25-19"
+        "note": "25-19, 26-24"
       },
       "stagione": "2026/2027",
       "campionato": "UISP U14F"
@@ -1591,6 +1595,14 @@
   "notifiche": [
     {
       "data": "2026-11-08",
+      "ora": "12:03",
+      "tipo": "risultato",
+      "opponent": "V.B. VOLLEY MUGELLO GIALLA",
+      "esito": "V",
+      "score": "2-0"
+    },
+    {
+      "data": "2026-11-08",
       "ora": "11:27",
       "tipo": "risultato",
       "opponent": "V.B. VOLLEY MUGELLO GIALLA",
@@ -1656,13 +1668,6 @@
       "tipo": "like",
       "nome": "francesca",
       "opponent": "BVS EURORIPOLI"
-    },
-    {
-      "data": "2026-11-03",
-      "ora": "09:45",
-      "tipo": "like",
-      "nome": "francesca",
-      "opponent": "SAN QUIRICO VOLLEY"
     }
   ]
 }
