@@ -1368,7 +1368,8 @@
       "campionato": "UISP U14F",
       "voti": {
         "Cristiano": "like",
-        "Alessio": "like"
+        "Alessio": "like",
+        "Giova": "like"
       }
     },
     {
@@ -1603,6 +1604,13 @@
   "notifiche": [
     {
       "data": "2026-11-08",
+      "ora": "13:20",
+      "tipo": "like",
+      "nome": "Giova",
+      "opponent": "V.B. VOLLEY MUGELLO GIALLA"
+    },
+    {
+      "data": "2026-11-08",
       "ora": "12:39",
       "tipo": "like",
       "nome": "Alessio",
@@ -1668,14 +1676,6 @@
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU",
       "esito": "P",
       "score": "1-2"
-    },
-    {
-      "data": "2026-11-07",
-      "ora": "18:25",
-      "tipo": "risultato",
-      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU",
-      "esito": "P",
-      "score": "1-1"
     }
   ]
 }
