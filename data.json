@@ -1367,7 +1367,8 @@
       "stagione": "2026/2027",
       "campionato": "UISP U14F",
       "voti": {
-        "Cristiano": "like"
+        "Cristiano": "like",
+        "Alessio": "like"
       }
     },
     {
@@ -1602,6 +1603,13 @@
   "notifiche": [
     {
       "data": "2026-11-08",
+      "ora": "12:39",
+      "tipo": "like",
+      "nome": "Alessio",
+      "opponent": "V.B. VOLLEY MUGELLO GIALLA"
+    },
+    {
+      "data": "2026-11-08",
       "ora": "12:38",
       "tipo": "like",
       "nome": "Cristiano",
@@ -1668,14 +1676,6 @@
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU",
       "esito": "P",
       "score": "1-1"
-    },
-    {
-      "data": "2026-11-07",
-      "ora": "17:55",
-      "tipo": "risultato",
-      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU",
-      "esito": "V",
-      "score": "1-0"
     }
   ]
 }
