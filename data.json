@@ -1354,11 +1354,15 @@
           {
             "gv": 26,
             "opp": 24
+          },
+          {
+            "gv": 25,
+            "opp": 13
           }
         ],
-        "score": "2-0",
+        "score": "3-0",
         "esito": "V",
-        "note": "25-19, 26-24"
+        "note": "25-19, 26-24, 25-13"
       },
       "stagione": "2026/2027",
       "campionato": "UISP U14F"
@@ -1595,6 +1599,14 @@
   "notifiche": [
     {
       "data": "2026-11-08",
+      "ora": "12:33",
+      "tipo": "risultato",
+      "opponent": "V.B. VOLLEY MUGELLO GIALLA",
+      "esito": "V",
+      "score": "3-0"
+    },
+    {
+      "data": "2026-11-08",
       "ora": "12:03",
       "tipo": "risultato",
       "opponent": "V.B. VOLLEY MUGELLO GIALLA",
@@ -1661,13 +1673,6 @@
       "tipo": "unlike",
       "nome": "Sandra",
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
-    },
-    {
-      "data": "2026-11-03",
-      "ora": "09:45",
-      "tipo": "like",
-      "nome": "francesca",
-      "opponent": "BVS EURORIPOLI"
     }
   ]
 }
