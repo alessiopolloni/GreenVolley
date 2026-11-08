@@ -272,6 +272,9 @@ form.entry .sets-grid input{
   padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer;
 }
 .synth-row:last-child{border-bottom:none;}
+.synth-row.with-pt{grid-template-columns:1fr auto auto auto 22px;}
+.synth-pt{font-size:.7rem; color:var(--sub); white-space:nowrap; min-width:34px; text-align:right;}
+.synth-row:focus-visible, .cal-day.has-match:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
 .synth-row:active{background:var(--bg);}
 .synth-main{display:flex; flex-direction:column; min-width:0;}
 .synth-opp{font-weight:600; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -356,6 +359,7 @@ form.entry .sets-grid input{
     <button class="modal-close" onclick="toggleSideMenu(false)">Chiudi ✕</button>
     <button class="export-btn" onclick="openAddressList()">📍 Indirizzi squadre</button>
     <button class="export-btn" onclick="openClassifica()">📊 Classifica FIPAV U14F 2026/2027</button>
+    <button class="export-btn" onclick="openClassificaUisp()">📊 Classifica UISP U14F 2026/2027</button>
     <div class="side-menu-notif">
       <div class="side-menu-notif-title">🔔 Ultimi aggiornamenti</div>
       <div class="notif-list" id="notif-list"></div>
@@ -474,7 +478,9 @@ function setView(v){
 let openForms = new Set(); // numeri partita con form risultato aperto (nuovo o in modifica)
 let confirmingDelete = new Set(); // numeri partita in attesa di conferma eliminazione
 let editingMatch = new Set(); // numeri partita con form dati partita (data/ora/luogo) aperto
-let notifiche = []; // ultimi aggiornamenti: like/unlike, risultati, modifiche partita (condivisi via data.json)
+let notifiche = [];
+let dirty = new Set(); // n delle partite modificate localmente e non ancora salvate
+function markDirty(n){ dirty.add(n); } // ultimi aggiornamenti: like/unlike, risultati, modifiche partita (condivisi via data.json)
 
 function nowLocalTime(){
   const d = new Date();
@@ -522,7 +528,7 @@ function whatsappUrl(m){
     const r = m.risultato;
     let totGv = 0, totOpp = 0;
     righe.push('');
-    righe.push(r.esito === 'V' ? `✅ *VITTORIA ${r.score}*` : `❌ *SCONFITTA ${r.score}*`);
+    righe.push(partitaConclusa(m) ? (esitoDi(m) === 'V' ? `✅ *VITTORIA ${scoreDi(m)}*` : `❌ *SCONFITTA ${scoreDi(m)}*`) : `⏱️ *IN CORSO ${scoreDi(m)}*`);
     (r.sets || []).forEach((s, i) => {
       totGv += s.gv; totOpp += s.opp;
       righe.push(`Set ${i+1}: ${s.gv}-${s.opp} ${s.gv > s.opp ? '✓' : '✗'}`);
@@ -549,8 +555,10 @@ function matchCardHtml(m, isNext){
     <button class="like-btn ${myVote==='unlike'?'active-unlike':''}" onclick="vote('${m.n}','unlike')">👎 ${unlikeCount}</button>`;
 
   if(m.risultato && !isOpen){
-    const cls = m.risultato.esito === 'V' ? 'win' : 'loss';
-    const esitoText = m.risultato.esito === 'V' ? 'Vittoria' : 'Sconfitta';
+    const concl = partitaConclusa(m);
+    const pt = puntiClassifica(m);
+    const cls = concl ? (esitoDi(m) === 'V' ? 'win' : 'loss') : '';
+    const esitoText = concl ? (esitoDi(m) === 'V' ? 'Vittoria' : 'Sconfitta') : 'In corso';
     let totGv = 0, totOpp = 0;
     const setsRows = (m.risultato.sets || []).map((s, i) => {
       totGv += s.gv; totOpp += s.opp;
@@ -560,7 +568,7 @@ function matchCardHtml(m, isNext){
     resultBlock = `
       <div class="result-block">
         <div class="result">
-          <div class="score ${cls}">${esitoText} ${escapeHtml(m.risultato.score)}</div>
+          <div class="score ${cls}">${esitoText} ${escapeHtml(scoreDi(m))}${pt !== null ? ` · +${pt} pt` : ''}</div>
           ${writable ? (confirmingDelete.has(m.n)
             ? `<div class="actions"><span class="confirm-text">Confermi eliminazione?</span><button class="btn-ghost danger" onclick="deleteResult('${m.n}')">Sì, elimina</button><button class="btn-ghost" onclick="cancelDeleteConfirm('${m.n}')">Annulla</button></div>`
             : `<div class="actions"><button class="btn-ghost" onclick="editResult('${m.n}')">Modifica</button><button class="btn-ghost danger" onclick="askDeleteConfirm('${m.n}')">Elimina risultato</button></div>`
@@ -574,7 +582,7 @@ function matchCardHtml(m, isNext){
       </div>`;
   } else if(writable && isOpen) {
     const existing = m.risultato ? m.risultato.sets : null;
-    const rows = [1,2,3,4,5].map(i => setInputHtml(m.n, i, existing)).join('');
+    const rows = Array.from({length: formatoSet(m)}, (_, k) => setInputHtml(m.n, k+1, existing)).join('');
     resultBlock = `
       <form class="entry open" id="form-${m.n}" onsubmit="return saveResult(event,'${m.n}')">
         <div class="sets-grid sets-grid-4">
@@ -650,7 +658,7 @@ function nextMatchGlobal(){
 }
 
 function lastPlayedGlobal(){
-  const played = matches.filter(m=>m.risultato).sort((a,b)=>(b.data+b.ora).localeCompare(a.data+a.ora));
+  const played = matches.filter(partitaConclusa).sort((a,b)=>(b.data+b.ora).localeCompare(a.data+a.ora));
   return played[0] || null;
 }
 
@@ -668,13 +676,13 @@ function buildTickerSegments(){
   if(last){
     const isHome = last.casa===TEAM;
     const opp = isHome ? last.trasferta : last.casa;
-    const esitoTxt = last.risultato.esito==='V' ? 'Vittoria' : 'Sconfitta';
+    const esitoTxt = esitoDi(last)==='V' ? 'Vittoria' : 'Sconfitta';
     segs.push(`🏐 Ultima: vs ${escapeHtml(opp)} — ${esitoTxt} ${escapeHtml(last.risultato.score)}`);
   }
 
   if(selectedSeason){
     const badgePool = matches
-      .filter(m=> m.stagione===selectedSeason && (selectedCampionato==='tutti' || m.campionato===selectedCampionato) && m.risultato)
+      .filter(m=> m.stagione===selectedSeason && (selectedCampionato==='tutti' || m.campionato===selectedCampionato) && partitaConclusa(m))
       .sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
     computeBadges(badgePool).forEach(b=>{
       segs.push(`${b.icon} ${b.titolo}: ${b.valore}${b.dettaglio ? ' — '+b.dettaglio : ''}`);
@@ -882,14 +890,14 @@ function renderCalendar(){
     let indicator = '';
     if(dayMatches && dayMatches.length){
       cls += ' has-match';
-      onclick = ` onclick="onDayClick('${iso}')"`;
+      onclick = ` onclick="onDayClick('${iso}')" role="button" tabindex="0" onkeydown="rowKey(event,this)"`;
       if(dayMatches.length === 1){
         const m0 = dayMatches[0];
         if(m0.casa !== TEAM) cls += ' trasferta-day';
         const r = m0.risultato;
-        if(r){
-          cls += r.esito === 'V' ? ' esito-win' : ' esito-loss';
-          indicator = `<span class="result-icon">${r.esito === 'V' ? '✓' : '✗'}</span>`;
+        if(r && partitaConclusa(m0)){
+          cls += esitoDi(m0) === 'V' ? ' esito-win' : ' esito-loss';
+          indicator = `<span class="result-icon">${esitoDi(m0) === 'V' ? '✓' : '✗'}</span>`;
         } else {
           indicator = `<span class="dot" style="background:${campColor(m0.campionato)}"></span>`;
         }
@@ -897,7 +905,7 @@ function renderCalendar(){
         cls += ' multi-match';
         indicator = `<span class="ind-row">` + dayMatches.map(m=>{
           const r = m.risultato;
-          if(r) return `<span class="result-icon ${r.esito==='V'?'won':'lost'}">${r.esito==='V'?'✓':'✗'}</span>`;
+          if(r && partitaConclusa(m)) return `<span class="result-icon ${esitoDi(m)==='V'?'won':'lost'}">${esitoDi(m)==='V'?'✓':'✗'}</span>`;
           return `<span class="dot" style="background:${campColor(m.campionato)}"></span>`;
         }).join('') + `</span>`;
       }
@@ -933,14 +941,14 @@ function onDayClick(iso){
     const isHome = m.casa === TEAM;
     const opp = isHome ? m.trasferta : m.casa;
     const r = m.risultato;
-    const icon = r ? (r.esito==='V' ? '<span class="set-icon won">✓</span>' : '<span class="set-icon lost">✗</span>') : '<span class="set-icon"></span>';
-    return `<div class="synth-row ${r ? (r.esito==='V'?'row-win':'row-loss') : ''}" onclick="openModal('${m.n}')">
+    const icon = (r && partitaConclusa(m)) ? (esitoDi(m)==='V' ? '<span class="set-icon won">✓</span>' : '<span class="set-icon lost">✗</span>') : '<span class="set-icon"></span>';
+    return `<div class="synth-row ${(r && partitaConclusa(m)) ? (esitoDi(m)==='V'?'row-win':'row-loss') : ''}" onclick="openModal('${m.n}')" role="button" tabindex="0" onkeydown="rowKey(event,this)">
       <div class="synth-main">
         <span class="synth-opp">${escapeHtml(opp)}</span>
         <span class="synth-date">${escapeHtml(m.campionato)} · ore ${m.ora}</span>
       </div>
       <span class="synth-ha">${isHome ? '🏠 Casa' : '🚌 Trasf.'}</span>
-      <span class="synth-score">${r ? escapeHtml(r.score) : ''}</span>
+      <span class="synth-score">${r ? escapeHtml(scoreDi(m)) : ''}</span>
       ${icon}
     </div>`;
   }).join('');
@@ -1027,6 +1035,7 @@ async function vote(n, type){
     const opp = m.casa===TEAM ? m.trasferta : m.casa;
     addNotifica({ tipo: type, nome: name, opponent: opp });
   }
+  markDirty(n);
   render();
   refreshIfModal(n);
   await persist();
@@ -1062,6 +1071,13 @@ function renderNotifiche(){
 
 const CLASSIFICA_URL = 'https://srv6.matchshare.it/stats_test/rest_api/fm_classifica?sid=586&client_name=fipavetruria';
 
+const CLASSIFICA_UISP_URL = 'https://docs.google.com/spreadsheets/d/1m4m99RY_6Sv9nzmxpVRfI8qIvhn1Ig-4AX8Z1QqXv4Y/edit?usp=drivesdk';
+
+function openClassificaUisp(){
+  toggleSideMenu(false);
+  window.open(CLASSIFICA_UISP_URL, '_blank', 'noopener');
+}
+
 function openClassifica(){
   toggleSideMenu(false);
   window.open(CLASSIFICA_URL, '_blank', 'noopener');
@@ -1075,7 +1091,7 @@ const MANUAL_HTML = `
 <h3>Le viste principali</h3>
 <ul>
   <li><b>Partite</b> — tutte le partite come schede, con tutti i dettagli</li>
-  <li><b>Elenco</b> — stesse partite, in righe compatte: avversaria, casa/trasferta, risultato</li>
+  <li><b>Elenco</b> — stesse partite, in righe compatte: avversaria, casa/trasferta, risultato e punti classifica; in alto il riepilogo (giocate, da giocare, vinte, perse, punti)</li>
   <li><b>Calendario</b> — vista mensile, i giorni con partita sono evidenziati; tocca un giorno per aprirla</li>
   <li><b>Statistiche</b> — riepilogo, grafici, record e classifica like della stagione</li>
 </ul>
@@ -1083,7 +1099,7 @@ const MANUAL_HTML = `
 <h3>Il calendario</h3>
 <p>Oltre alle freccette per andare al mese prima/dopo e al tasto <b>"Oggi"</b>, i due pulsanti <b>«</b> e <b>»</b> saltano direttamente al mese precedente o successivo in cui c'è almeno una partita, senza doversi fermare sui mesi vuoti.</p>
 <h3>Inserire o modificare un risultato</h3>
-<p>Sulla scheda di ogni partita giocata trovi <b>"Aggiungi risultato"</b> (o "Modifica"/"Elimina risultato" se c'è già). Inserisci il punteggio set per set: il risultato finale e l'esito si calcolano da soli. Lo stesso vale per <b>"✏️ Modifica partita"</b>, se serve correggere data, ora o luogo.</p>
+<p>Sulla scheda di ogni partita giocata trovi <b>"Aggiungi risultato"</b> (o "Modifica"/"Elimina risultato" se c'è già). Inserisci il punteggio set per set: il risultato finale e l'esito si calcolano da soli. Durante la partita puoi salvare anche i set già giocati: la partita risulta "In corso" e potrai completarla con "Modifica"; punti classifica e statistiche la conteggiano solo a partita conclusa. Lo stesso vale per <b>"✏️ Modifica partita"</b>, se serve correggere data, ora o luogo.</p>
 <h3>Mettere like o unlike</h3>
 <p>Su ogni scheda ci sono due pulsanti, 👍 e 👎: si vota liberamente. La prima volta che voti, l'app chiede il nome e lo ricorda per le volte successive.</p>
 <h3>Il meteo</h3>
@@ -1093,7 +1109,7 @@ const MANUAL_HTML = `
 <h3>Il menu con i tre puntini (⋮)</h3>
 <ul>
   <li><b>📍 Indirizzi squadre</b> — elenco squadre con indirizzo e navigazione Google Maps</li>
-  <li><b>📊 Classifica</b> — apre la classifica ufficiale in un'altra pagina</li>
+  <li><b>📊 Classifica FIPAV e UISP</b> — aprono le classifiche ufficiali in un'altra pagina</li>
   <li><b>🔔 Ultimi aggiornamenti</b> — chi ha messo un like, inserito un risultato o modificato una partita</li>
   <li><b>🔄 Aggiorna dati</b> — forza il ricaricamento se sospetti nuovi salvataggi</li>
   <li><b>⬇️ Esporta tutto in CSV</b> — scarica tutte le partite, apribile con Excel</li>
@@ -1101,7 +1117,7 @@ const MANUAL_HTML = `
 <h3>Le sezioni delle Statistiche</h3>
 <p>Entrando in Statistiche, la stagione selezionata è già quella che stavi guardando; puoi comunque cambiarla o passare a "Tutte le stagioni" dai due filtri in alto. Le sezioni, in ordine:</p>
 <ul>
-  <li><b>Riepilogo generale</b> — numero di partite, vittorie, sconfitte, % vittorie, set e punti totali fatti/subiti.</li>
+  <li><b>Riepilogo generale</b> — numero di partite, vittorie, sconfitte, % vittorie, set e punti totali fatti/subiti, più i <b>punti classifica</b> totali e la media per partita. Fino al 2025/2026 (3 set, sempre tutti giocati) si prende 1 punto per ogni set vinto; dal 2026/2027 (5 set) 3-0 e 3-1 valgono 3 punti, il 3-2 vale 2 al vincitore e 1 allo sconfitto.</li>
   <li><b>Badge e record</b> — primati automatici: striscia di vittorie più lunga, striscia in corso, miglior rimonta, prima vittoria netta, vittoria col maggior scarto di punti, set più combattuto, avversario battuto più spesso.</li>
   <li><b>Like alle partite</b> — totale like/unlike, media like per partita votata, le 5 partite più apprezzate e quella più contestata.</li>
   <li><b>Andamento nel tempo</b> — quattro grafici in sequenza, con una <b>media mobile</b> (configurabile su 3, 5 o 10 partite) che addolcisce l'andamento per capire se la squadra sta migliorando, peggiorando o è stabile:
@@ -1109,11 +1125,12 @@ const MANUAL_HTML = `
       <li>esito di ogni partita (vinta/persa) nel tempo;</li>
       <li>punti fatti e subiti partita per partita;</li>
       <li>differenza punti (fatti meno subiti) e sua media mobile;</li>
-      <li>set vinti a partita e sua media mobile.</li>
+      <li>set vinti a partita e sua media mobile;</li>
+      <li>punti classifica cumulati partita dopo partita, con una linea tratteggiata che mostra il massimo possibile (si vede selezionando una sola stagione e un solo campionato).</li>
     </ul>
   </li>
   <li><b>Casa vs Trasferta</b> — % di vittorie, punti e set medi, confrontando le partite giocate in casa con quelle fuori.</li>
-  <li><b>Analisi per set</b> — per ciascun set (1°-5°) quante volte è stato vinto o perso e il punteggio medio, con il set "più critico" evidenziato e il bilancio delle partite arrivate al tie-break.</li>
+  <li><b>Analisi per set</b> — per ciascun set quante volte è stato vinto o perso e il punteggio medio, con il set "più critico" evidenziato. Le partite a 5 set e quelle a 3 set sono tenute separate; il bilancio del tie-break compare solo per quelle a 5 set.</li>
   <li><b>Distribuzione punteggi finali</b> — quante partite sono finite 3-0, 3-1, 3-2 (o 2-3, 1-3, 0-3 per le sconfitte), con la relativa percentuale.</li>
   <li><b>Scontri diretti</b> — l'elenco delle squadre avversarie con il bilancio vittorie-sconfitte; tocca una squadra per vedere lo storico partita per partita.</li>
   <li><b>Confronto stagioni/campionati</b> — compare solo scegliendo "Tutte le stagioni" o "Tutti i campionati": mette a confronto le % di vittoria tra le diverse stagioni o i diversi campionati.</li>
@@ -1210,6 +1227,7 @@ async function saveMatchInfo(ev, n){
   const opp = m.casa===TEAM ? m.trasferta : m.casa;
   addNotifica({ tipo: 'modifica', opponent: opp, campionato: m.campionato, giornata: m.giornata });
   editingMatch.delete(n);
+  markDirty(n);
   render();
   refreshIfModal(n);
   await persist();
@@ -1231,8 +1249,12 @@ function closeForm(n){
 }
 
 function updateFormLive(n){
-  let totGv = 0, totOpp = 0, setsGv = 0, setsOpp = 0, anyComplete = false;
-  for(let i=1;i<=5;i++){
+  const m = matches.find(x=>x.n===n);
+  if(!m) return;
+  const f = formatoSet(m);
+  let totGv = 0, totOpp = 0, setsGv = 0, setsOpp = 0, filled = 0, hasTie = false;
+  const seq = [];
+  for(let i=1;i<=f;i++){
     const gvEl = document.getElementById(`s${i}gv-${n}`);
     const oppEl = document.getElementById(`s${i}opp-${n}`);
     const iconEl = document.getElementById(`icon${i}-${n}`);
@@ -1242,10 +1264,11 @@ function updateFormLive(n){
       const gv = parseInt(gvVal,10), opp = parseInt(oppVal,10);
       totGv += gv; totOpp += opp;
       const won = gv > opp;
-      if(won) setsGv++; else if(opp > gv) setsOpp++;
+      if(won) setsGv++; else if(opp > gv) setsOpp++; else hasTie = true;
+      seq.push(won ? 'g' : (opp > gv ? 'o' : 't'));
       iconEl.textContent = gv === opp ? '' : (won ? '✓' : '✗');
       iconEl.className = 'set-icon ' + (gv === opp ? '' : (won ? 'won' : 'lost'));
-      anyComplete = true;
+      filled++;
     } else {
       iconEl.textContent = '';
       iconEl.className = 'set-icon';
@@ -1257,24 +1280,32 @@ function updateFormLive(n){
   if(totOppEl) totOppEl.textContent = totOpp;
   const banner = document.getElementById(`banner-${n}`);
   if(!banner) return;
-  if(!anyComplete){
-    banner.textContent = '';
-    banner.className = 'esito-banner';
-  } else if(setsGv >= 3){
-    banner.textContent = `Vittoria Green Volley (${setsGv}-${setsOpp})`;
-    banner.className = 'esito-banner win';
-  } else if(setsOpp >= 3){
-    banner.textContent = `Sconfitta Green Volley (${setsGv}-${setsOpp})`;
-    banner.className = 'esito-banner loss';
+  const set = (txt, cls) => { banner.textContent = txt; banner.className = 'esito-banner' + (cls ? ' '+cls : ''); };
+  if(filled === 0){ set('', ''); return; }
+  if(hasTie){ set('Set pari: non valido, un set ha sempre un vincitore', 'loss'); return; }
+  if(f === 5){
+    // set inseriti dopo che una squadra ha già vinto 3 set: la partita era finita
+    let g = 0, o = 0;
+    for(let k=0;k<seq.length;k++){
+      if(seq[k] === 'g') g++; else if(seq[k] === 'o') o++;
+      if((g >= 3 || o >= 3) && k < seq.length-1){
+        set(`Dopo il Set ${k+1} la partita era già finita: togli i set successivi`, 'loss');
+        return;
+      }
+    }
+  }
+  // soglia diversa per formato: 3 set = tutti e 3 giocati; 5 set = una squadra a 3 set vinti
+  const conclusa = f === 3 ? filled >= 3 : (setsGv >= 3 || setsOpp >= 3);
+  if(conclusa){
+    const vinta = setsGv > setsOpp;
+    const pt = f === 3 ? setsGv : (setsGv >= 3 ? (setsOpp <= 1 ? 3 : 2) : (setsGv === 2 ? 1 : 0));
+    set(`${vinta ? 'Vittoria' : 'Sconfitta'} Green Volley (${setsGv}-${setsOpp}) · +${pt} pt`, vinta ? 'win' : 'loss');
   } else if(setsGv === setsOpp){
-    banner.textContent = `Parità set (${setsGv}-${setsOpp}) — partita in corso`;
-    banner.className = 'esito-banner draw';
+    set(`Parità set (${setsGv}-${setsOpp}) — partita in corso`, 'draw');
   } else if(setsGv > setsOpp){
-    banner.textContent = `In vantaggio Green Volley (${setsGv}-${setsOpp})`;
-    banner.className = 'esito-banner win';
+    set(`In vantaggio Green Volley (${setsGv}-${setsOpp}) — partita in corso`, 'win');
   } else {
-    banner.textContent = `In svantaggio Green Volley (${setsGv}-${setsOpp})`;
-    banner.className = 'esito-banner loss';
+    set(`In svantaggio Green Volley (${setsGv}-${setsOpp}) — partita in corso`, 'loss');
   }
 }
 
@@ -1295,6 +1326,7 @@ function editResult(n){
 async function deleteResult(n){
   const m = matches.find(x=>x.n===n);
   m.risultato = null;
+  markDirty(n);
   confirmingDelete.delete(n);
   openForms.delete(n);
   render();
@@ -1317,34 +1349,44 @@ function cancelDeleteConfirm(n){
 
 async function saveResult(ev, n){
   ev.preventDefault();
+  const m = matches.find(x=>x.n===n);
+  const f = formatoSet(m);
   const sets = [];
-  for(let i=1;i<=5;i++){
+  let finiti = false;
+  for(let i=1;i<=f;i++){
     const gvVal = document.getElementById(`s${i}gv-${n}`).value;
     const oppVal = document.getElementById(`s${i}opp-${n}`).value;
-    if(gvVal === '' && oppVal === '') continue;
-    if(gvVal === '' || oppVal === ''){
-      showStatus(`Compila entrambi i punteggi del Set ${i}`);
-      return false;
+    if(gvVal === '' && oppVal === ''){ finiti = true; continue; }
+    if(finiti){ showStatus('Compila i set in ordine, senza righe vuote in mezzo'); return false; }
+    if(gvVal === '' || oppVal === ''){ showStatus(`Compila entrambi i punteggi del Set ${i}`); return false; }
+    const gv = parseInt(gvVal,10), opp = parseInt(oppVal,10);
+    if(gv === opp){ showStatus(`Set ${i}: non può finire in parità`); return false; }
+    sets.push({ gv, opp });
+  }
+  if(sets.length === 0){ showStatus('Inserisci almeno un set'); return false; }
+  if(f === 5){
+    // salvataggio parziale consentito (partita in corso), ma non set dopo la fine della partita
+    let g = 0, o = 0;
+    for(let k=0;k<sets.length;k++){
+      if(sets[k].gv > sets[k].opp) g++; else o++;
+      if((g >= 3 || o >= 3) && k < sets.length-1){
+        showStatus(`Dopo il Set ${k+1} la partita era già finita: togli i set successivi`);
+        return false;
+      }
     }
-    sets.push({ gv: parseInt(gvVal,10), opp: parseInt(oppVal,10) });
   }
-  if(sets.length === 0){
-    showStatus('Inserisci almeno un set');
-    return false;
-  }
-  let setsGv = 0, setsOpp = 0;
-  for(const s of sets){ if(s.gv > s.opp) setsGv++; else if(s.opp > s.gv) setsOpp++; }
-  const m = matches.find(x=>x.n===n);
+  const w = setVinti(sets);
   m.risultato = {
     sets,
-    score: `${setsGv}-${setsOpp}`,
-    esito: setsGv >= 3 ? 'V' : (setsOpp >= 3 ? 'P' : (setsGv > setsOpp ? 'V' : 'P')),
+    score: `${w.gv}-${w.opp}`,
+    esito: w.gv > w.opp ? 'V' : 'P',
     note: sets.map(s=>`${s.gv}-${s.opp}`).join(', ')
   };
-  {
+  if(partitaConclusa(m)){ // la notifica parte solo a partita chiusa, non per i salvataggi parziali
     const opp = m.casa===TEAM ? m.trasferta : m.casa;
-    addNotifica({ tipo: 'risultato', opponent: opp, esito: m.risultato.esito, score: m.risultato.score });
+    addNotifica({ tipo: 'risultato', opponent: opp, esito: esitoDi(m), score: scoreDi(m) });
   }
+  markDirty(n);
   openForms.delete(n);
   render();
   refreshIfModal(n);
@@ -1356,7 +1398,7 @@ function showStatus(text){
   const el = document.getElementById('status-text');
   el.textContent = text;
   el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), 2200);
+  setTimeout(()=>el.classList.remove('show'), 3200);
 }
 
 // ===== DATI CONDIVISI TRAMITE /api/data (Vercel + GitHub) =====
@@ -1367,7 +1409,7 @@ const API_URL = '/api/data';
 let currentSha = null; // "sha" del file data.json su GitHub, serve per evitare sovrascritture
 
 async function loadFromApi(showMsg){
-  if(!showMsg && (openForms.size > 0 || editingMatch.size > 0)){
+  if(!showMsg && (openForms.size > 0 || editingMatch.size > 0 || dirty.size > 0)){
     // c'è un form di risultato o di modifica partita aperto: non ricarico/ridisegno
     // in automatico per non far perdere quello che si sta scrivendo. Un aggiornamento
     // richiesto esplicitamente (pulsante "Aggiorna dati", showMsg true) passa comunque.
@@ -1397,7 +1439,55 @@ async function loadFromApi(showMsg){
   }
 }
 
-async function persist(){
+const attendi = ms => new Promise(r => setTimeout(r, ms));
+
+// Rilegge i dati più recenti e li unisce a quelli locali, per campo n.
+// Per le partite modificate qui vince la versione locale (la più recente);
+// per tutte le altre vince quella del server. I voti dei altri votanti restano quelli del server.
+async function mergeWithRemote(){
+  try{
+    const res = await fetch(API_URL);
+    if(!res.ok) return false;
+    const payload = await res.json();
+    const rd = payload.data;
+    const remoteMatches = Array.isArray(rd) ? rd : (rd && Array.isArray(rd.matches) ? rd.matches : null);
+    if(!remoteMatches) return false;
+    const remoteNotifiche = (rd && !Array.isArray(rd) && Array.isArray(rd.notifiche)) ? rd.notifiche : [];
+    const myName = localStorage.getItem('gv_voter_name');
+    const local = new Map(matches.map(m=>[m.n, m]));
+    const out = [];
+    for(const rm of remoteMatches){
+      const lm = local.get(rm.n);
+      local.delete(rm.n);
+      if(lm && dirty.has(rm.n)){
+        const merged = { ...rm, ...lm };
+        const voti = { ...(rm.voti || {}) };
+        if(myName){
+          if(lm.voti && lm.voti[myName]) voti[myName] = lm.voti[myName]; else delete voti[myName];
+        }
+        merged.voti = voti;
+        out.push(merged);
+      } else {
+        out.push(rm);
+      }
+    }
+    for(const lm of local.values()){ if(dirty.has(lm.n)) out.push(lm); }
+    matches = out;
+    const chiave = nf => [nf.tipo, nf.data, nf.ora, nf.nome || '', nf.opponent || ''].join('|');
+    const viste = new Set();
+    notifiche = [...notifiche, ...remoteNotifiche]
+      .filter(nf => { const k = chiave(nf); if(viste.has(k)) return false; viste.add(k); return true; })
+      .sort((a,b)=> (b.data+b.ora).localeCompare(a.data+a.ora))
+      .slice(0, 10);
+    currentSha = payload.sha;
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+async function persist(tentativo = 0){
+  const inviate = new Set(dirty); // solo le modifiche presenti al momento dell'invio
   try{
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -1405,17 +1495,24 @@ async function persist(){
       body: JSON.stringify({ newData: { matches, notifiche }, sha: currentSha })
     });
     const payload = await res.json().catch(()=>({}));
-    if(!res.ok){
-      // Probabile conflitto: un altro utente ha salvato nel frattempo (sha non più valido).
-      // Ricarichiamo i dati più recenti; la modifica andrà reinserita.
-      await loadFromApi(false);
-      showStatus('Qualcun altro ha salvato nel frattempo: dati aggiornati, riprova a inserire');
-      return;
-    }
+    if(!res.ok) throw new Error('http ' + res.status);
     currentSha = payload.sha;
+    inviate.forEach(n => dirty.delete(n));
     showStatus('Risultato salvato per tutti');
+    return true;
   }catch(e){
-    showStatus('Salvataggio non riuscito, riprova');
+    if(tentativo >= 2){
+      showStatus('Salvataggio non riuscito: controlla la connessione e riprova');
+      return false;
+    }
+    // conflitto o errore: rileggo i dati più recenti, unisco per n e riprovo
+    const unito = await mergeWithRemote();
+    if(unito){
+      if(openForms.size === 0 && editingMatch.size === 0) render();
+    } else {
+      await attendi(800 * (tentativo + 1));
+    }
+    return persist(tentativo + 1);
   }
 }
 
@@ -1480,6 +1577,32 @@ function statBar(label, percent, color){
   </div>`;
 }
 
+/* ===== Formato partita e punti classifica (calcolati dai set, mai salvati nel JSON) ===== */
+function formatoSet(m){ return m.stagione < '2026/2027' ? 3 : 5; }
+function setsDi(m){ return ((m.risultato && m.risultato.sets) || []).slice(0, formatoSet(m)); }
+function setVinti(sets){
+  let gv = 0, opp = 0;
+  for(const s of sets){ if(s.gv > s.opp) gv++; else if(s.opp > s.gv) opp++; }
+  return { gv, opp };
+}
+function partitaConclusa(m){
+  if(!m.risultato || !Array.isArray(m.risultato.sets)) return false;
+  const sets = setsDi(m), w = setVinti(sets);
+  if(formatoSet(m) === 3) return sets.length === 3;
+  return w.gv >= 3 || w.opp >= 3;
+}
+function esitoDi(m){ const w = setVinti(setsDi(m)); return w.gv > w.opp ? 'V' : 'P'; }
+function scoreDi(m){ const w = setVinti(setsDi(m)); return `${w.gv}-${w.opp}`; }
+function puntiClassifica(m){
+  if(!partitaConclusa(m)) return null;
+  const w = setVinti(setsDi(m));
+  if(formatoSet(m) === 3) return w.gv;
+  if(w.gv >= 3) return w.opp <= 1 ? 3 : 2;
+  return w.gv === 2 ? 1 : 0;
+}
+function totalePuntiClassifica(pool){ return pool.reduce((s,m)=> s + (puntiClassifica(m) || 0), 0); }
+function rowKey(ev, el){ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } }
+
 function matchPoints(m){
   return m.risultato.sets.reduce((acc,s)=>{ acc.gv+=s.gv; acc.opp+=s.opp; return acc; }, {gv:0,opp:0});
 }
@@ -1488,7 +1611,7 @@ function statsPool(){
   return matches.filter(m =>
     (statSeason==='tutte' || m.stagione===statSeason) &&
     (statCampionato==='tutti' || m.campionato===statCampionato) &&
-    m.risultato
+    partitaConclusa(m)
   ).sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
 }
 
@@ -1499,7 +1622,8 @@ function toggleOpponent(opp){ expandedOpponent = expandedOpponent===opp ? null :
 
 function renderStatsSummary(pool){
   const n=pool.length;
-  const vittorie=pool.filter(m=>m.risultato.esito==='V').length;
+  const ptTot = totalePuntiClassifica(pool);
+  const vittorie=pool.filter(m=>esitoDi(m)==='V').length;
   let setsW=0,setsL=0,puntiF=0,puntiS=0;
   pool.forEach(m=>m.risultato.sets.forEach(s=>{ puntiF+=s.gv; puntiS+=s.opp; if(s.gv>s.opp) setsW++; else setsL++; }));
   return `<div class="stats-section">
@@ -1513,6 +1637,8 @@ function renderStatsSummary(pool){
       <div class="stat-card"><span class="stat-num">${(setsW/n).toFixed(1)}</span><span class="stat-label">Set vinti/partita</span></div>
       <div class="stat-card"><span class="stat-num">${puntiF}-${puntiS}</span><span class="stat-label">Punti fatti-subiti</span></div>
       <div class="stat-card"><span class="stat-num">${(puntiF/n).toFixed(0)}-${(puntiS/n).toFixed(0)}</span><span class="stat-label">Punti medi/partita</span></div>
+      <div class="stat-card"><span class="stat-num">${ptTot}</span><span class="stat-label">Punti classifica</span></div>
+      <div class="stat-card"><span class="stat-num">${n ? (ptTot/n).toFixed(2) : '0.00'}</span><span class="stat-label">Media pt/partita</span></div>
     </div>
   </div>`;
 }
@@ -1535,7 +1661,7 @@ function computeBadges(pool){
   // Striscia di vittorie più lunga + striscia attuale
   let best = {len:0, endIdx:-1}, cur = 0;
   pool.forEach((m,i)=>{
-    if(m.risultato.esito==='V'){ cur++; if(cur>best.len) best={len:cur, endIdx:i}; }
+    if(esitoDi(m)==='V'){ cur++; if(cur>best.len) best={len:cur, endIdx:i}; }
     else cur = 0;
   });
   if(best.len>0){
@@ -1545,7 +1671,7 @@ function computeBadges(pool){
   }
   let curStreak = 0, curType = null;
   for(let i=pool.length-1;i>=0;i--){
-    const esito = pool[i].risultato.esito;
+    const esito = esitoDi(pool[i]);
     if(curType===null) curType = esito;
     if(esito===curType) curStreak++; else break;
   }
@@ -1556,7 +1682,7 @@ function computeBadges(pool){
 
   // Miglior rimonta: partita vinta dopo aver perso i primi set
   let bestComeback = null;
-  pool.filter(m=>m.risultato.esito==='V').forEach(m=>{
+  pool.filter(m=>esitoDi(m)==='V').forEach(m=>{
     let lost=0;
     for(const s of m.risultato.sets){ if(s.gv<s.opp) lost++; else break; }
     if(lost>0 && (!bestComeback || lost>bestComeback.lost)) bestComeback = {m, lost};
@@ -1567,7 +1693,7 @@ function computeBadges(pool){
   }
 
   // Prima vittoria netta (senza perdere set)
-  const primoPulito = pool.find(m=> m.risultato.esito==='V' && m.risultato.sets.every(s=>s.gv>s.opp));
+  const primoPulito = pool.find(m=> esitoDi(m)==='V' && m.risultato.sets.every(s=>s.gv>s.opp));
   if(primoPulito){
     badges.push({icon:'🧹', titolo:'Prima vittoria netta', valore:escapeHtml(primoPulito.risultato.score),
       dettaglio:`vs ${escapeHtml(opponentOf(primoPulito))} · ${fmtData(primoPulito.data)}`});
@@ -1575,7 +1701,7 @@ function computeBadges(pool){
 
   // Punteggio più netto (maggior scarto punti in una vittoria)
   let bestMargin = null;
-  pool.filter(m=>m.risultato.esito==='V').forEach(m=>{
+  pool.filter(m=>esitoDi(m)==='V').forEach(m=>{
     const p = matchPoints(m); const diff = p.gv - p.opp;
     if(!bestMargin || diff>bestMargin.diff) bestMargin = {m, diff, p};
   });
@@ -1594,12 +1720,12 @@ function computeBadges(pool){
   });
   if(tightest){
     badges.push({icon:'😤', titolo:'Ultimo set più combattuto', valore:`${tightest.last.gv}-${tightest.last.opp}`,
-      dettaglio:`vs ${escapeHtml(opponentOf(tightest.m))} · ${tightest.m.risultato.esito==='V'?'vinta':'persa'} · ${fmtData(tightest.m.data)}`});
+      dettaglio:`vs ${escapeHtml(opponentOf(tightest.m))} · ${esitoDi(tightest.m)==='V'?'vinta':'persa'} · ${fmtData(tightest.m.data)}`});
   }
 
   // Avversario battuto più spesso
   const byOpp = {};
-  pool.forEach(m=>{ const o=opponentOf(m); (byOpp[o]=byOpp[o]||{w:0,n:0}); byOpp[o].n++; if(m.risultato.esito==='V') byOpp[o].w++; });
+  pool.forEach(m=>{ const o=opponentOf(m); (byOpp[o]=byOpp[o]||{w:0,n:0}); byOpp[o].n++; if(esitoDi(m)==='V') byOpp[o].w++; });
   let favOpp = null;
   Object.keys(byOpp).forEach(o=>{ if(!favOpp || byOpp[o].w>byOpp[favOpp].w) favOpp = o; });
   if(favOpp && byOpp[favOpp].w>0){
@@ -1621,7 +1747,18 @@ function renderStatsBadges(pool){
 
 function renderStatsTrend(pool){
   const labels = pool.map(m=>{ const d=new Date(m.data+"T00:00:00"); return d.getDate()+'/'+(d.getMonth()+1); });
-  const esiti = pool.map(m=>m.risultato.esito==='V'?1:0);
+  // punti classifica cumulati: il cumulo riparte da zero per ogni coppia stagione+campionato,
+  // quindi il grafico ha senso solo con una singola coppia selezionata
+  let puntiCumulatiChart;
+  if(new Set(pool.map(m=>m.stagione+'|'+m.campionato)).size > 1){
+    puntiCumulatiChart = '<p class="readonly-note">Seleziona una stagione e un campionato</p>';
+  } else {
+    let acc = 0;
+    const cum = pool.map(m=>{ acc += (puntiClassifica(m) || 0); return acc; });
+    const maxCum = pool.map((_,i)=> 3*(i+1));
+    puntiCumulatiChart = chartSvg([{values:cum,color:'var(--home)'},{values:maxCum,color:'var(--sub)',dashed:true,dots:false}], labels, {min:0});
+  }
+  const esiti = pool.map(m=>esitoDi(m)==='V'?1:0);
   const winMa = rollingAvg(esiti, maWindow);
   const puntiF = pool.map(m=>matchPoints(m).gv);
   const puntiS = pool.map(m=>matchPoints(m).opp);
@@ -1642,14 +1779,16 @@ function renderStatsTrend(pool){
     ${chartSvg([{values:diff,color:'var(--sub)',type:'bar'},{values:diffMa,color:'#3b6fc9',dashed:true,dots:false}], labels)}
     <p class="chart-title">Set vinti a partita e media mobile</p>
     ${chartSvg([{values:setsVinti,color:'var(--home)',type:'bar'},{values:setsMa,color:'#3b6fc9',dashed:true,dots:false}], labels, {min:0,max:5})}
+    <p class="chart-title">Punti classifica cumulati (tratteggio = massimo possibile)</p>
+    ${puntiCumulatiChart}
   </div>`;
 }
 
 function renderStatsHomeAway(pool){
   const casa = pool.filter(m=>m.casa===TEAM);
   const trasf = pool.filter(m=>m.trasferta===TEAM);
-  const wCasa = casa.filter(m=>m.risultato.esito==='V').length;
-  const wTrasf = trasf.filter(m=>m.risultato.esito==='V').length;
+  const wCasa = casa.filter(m=>esitoDi(m)==='V').length;
+  const wTrasf = trasf.filter(m=>esitoDi(m)==='V').length;
   const avg=(arr,f)=> arr.length ? (arr.reduce((a,m)=>a+f(m),0)/arr.length).toFixed(1) : '–';
   return `<div class="stats-section">
     <h3>Casa vs Trasferta</h3>
@@ -1664,23 +1803,36 @@ function renderStatsHomeAway(pool){
   </div>`;
 }
 
-function renderStatsBySet(pool){
-  const perSet = [1,2,3,4,5].map(i=>{
+function bySetBlock(pool, f){
+  const perSet = Array.from({length:f}, (_, k)=>{
+    const i = k+1;
     let w=0,l=0,sumGv=0,sumOpp=0,n=0;
     pool.forEach(m=>{ const s=m.risultato.sets[i-1]; if(s){ n++; sumGv+=s.gv; sumOpp+=s.opp; if(s.gv>s.opp) w++; else l++; } });
     return {i,w,l,n, avgGv:n?(sumGv/n).toFixed(1):'–', avgOpp:n?(sumOpp/n).toFixed(1):'–', ratio:(w+l)?w/(w+l):null};
   });
-  const tieBreak = perSet[4];
   const withSample = perSet.filter(s=>s.ratio!=null);
   const critico = withSample.length ? withSample.reduce((a,b)=> b.ratio<a.ratio?b:a) : null;
-  return `<div class="stats-section">
-    <h3>Analisi per set</h3>
-    <table class="stats-table">
+  let html = `<table class="stats-table">
       <tr><th>Set</th><th>Vinti</th><th>Persi</th><th>Media fatti</th><th>Media subiti</th></tr>
       ${perSet.map(s=>`<tr class="${critico && s.i===critico.i?'critico':''}"><td>${s.i}°${critico && s.i===critico.i?' ⚠️':''}</td><td>${s.w}</td><td>${s.l}</td><td>${s.avgGv}</td><td>${s.avgOpp}</td></tr>`).join('')}
-    </table>
-    ${critico ? `<p class="readonly-note">Set più critico: <b>${critico.i}°</b> (vinto il ${Math.round(critico.ratio*100)}% delle volte)</p>` : ''}
-    <p class="readonly-note">Partite al tie-break (5° set): ${tieBreak.n} — bilancio ${tieBreak.w}V-${tieBreak.l}P</p>
+    </table>`;
+  if(critico) html += `<p class="readonly-note">Set più critico: <b>${critico.i}°</b> (vinto il ${Math.round(critico.ratio*100)}% delle volte)</p>`;
+  if(f === 5){
+    const tb = perSet[4];
+    html += `<p class="readonly-note">Partite al tie-break (5° set): ${tb.n} — bilancio ${tb.w}V-${tb.l}P</p>`;
+  }
+  return html;
+}
+
+function renderStatsBySet(pool){
+  // i formati non vengono mescolati: un blocco per le partite a 5 set, uno per quelle a 3 set
+  const blocchi = [];
+  const p5 = pool.filter(m=>formatoSet(m)===5), p3 = pool.filter(m=>formatoSet(m)===3);
+  if(p5.length) blocchi.push({f:5, pool:p5, titolo:'Partite a 5 set (dal 2026/2027)'});
+  if(p3.length) blocchi.push({f:3, pool:p3, titolo:'Partite a 3 set (fino al 2025/2026)'});
+  return `<div class="stats-section">
+    <h3>Analisi per set</h3>
+    ${blocchi.map(b=>`<p class="chart-title">${b.titolo}</p>${bySetBlock(b.pool, b.f)}`).join('')}
   </div>`;
 }
 
@@ -1688,7 +1840,7 @@ function renderStatsScoreDist(pool){
   const counts = {};
   pool.forEach(m=>{
     const key = m.risultato.score;
-    (counts[key] = counts[key] || {n:0, esito:m.risultato.esito}).n++;
+    (counts[key] = counts[key] || {n:0, esito:esitoDi(m)}).n++;
   });
   const entries = Object.keys(counts).map(k=>({score:k, n:counts[k].n, esito:counts[k].esito}));
   const vittorie = entries.filter(e=>e.esito==='V').sort((a,b)=>{
@@ -1721,11 +1873,11 @@ function renderStatsHeadToHead(pool){
   });
   const rows = Object.keys(byOpp).sort().map(opp=>{
     const list = byOpp[opp];
-    const w = list.filter(m=>m.risultato.esito==='V').length;
+    const w = list.filter(m=>esitoDi(m)==='V').length;
     const open = expandedOpponent===opp;
     const history = open ? `<div class="h2h-history">${list.map(m=>{
       const dett = m.risultato.sets.map(s=>s.gv+'-'+s.opp).join(', ');
-      return `<div class="h2h-row"><span>${fmtData(m.data)}</span><span class="${m.risultato.esito==='V'?'won':'lost'}">${m.risultato.score}</span><span class="h2h-sets">${dett}</span></div>`;
+      return `<div class="h2h-row"><span>${fmtData(m.data)}</span><span class="${esitoDi(m)==='V'?'won':'lost'}">${m.risultato.score}</span><span class="h2h-sets">${dett}</span></div>`;
     }).join('')}</div>` : '';
     return `<div class="h2h-item">
       <button class="h2h-head" onclick="toggleOpponent('${opp.replace(/'/g,"\\'")}')">
@@ -1743,14 +1895,14 @@ function renderStatsCompare(pool){
     const seasons=[...new Set(pool.map(m=>m.stagione))].sort();
     html += `<p class="chart-title">% vittorie per stagione</p>` + seasons.map(s=>{
       const sub=pool.filter(m=>m.stagione===s);
-      return statBar(s, pct(sub.filter(m=>m.risultato.esito==='V').length, sub.length));
+      return statBar(s, pct(sub.filter(m=>esitoDi(m)==='V').length, sub.length));
     }).join('');
   }
   if(statCampionato==='tutti'){
     const camps=[...new Set(pool.map(m=>m.campionato))].sort();
     html += `<p class="chart-title">% vittorie per campionato</p>` + camps.map(c=>{
       const sub=pool.filter(m=>m.campionato===c);
-      return statBar(c, pct(sub.filter(m=>m.risultato.esito==='V').length, sub.length), campColor(c));
+      return statBar(c, pct(sub.filter(m=>esitoDi(m)==='V').length, sub.length), campColor(c));
     }).join('');
   }
   html += '</div>';
@@ -1778,7 +1930,7 @@ function renderStatsLikes(pool){
   const piuContestata = [...withVotes].sort((a,b)=> b.unlike-a.unlike)[0];
 
   const rows = piuPiaciute.map(x=>`
-    <div class="synth-row" onclick="openModal('${x.m.n}')">
+    <div class="synth-row" onclick="openModal('${x.m.n}')" role="button" tabindex="0" onkeydown="rowKey(event,this)">
       <div class="synth-main">
         <span class="synth-opp">${escapeHtml(opponentOf(x.m))}</span>
         <span class="synth-date">${fmtData(x.m.data)} · ${escapeHtml(x.m.campionato)}</span>
@@ -1859,11 +2011,12 @@ function renderSynth(){
     .filter(m => synthCamp==='tutti' || m.campionato===synthCamp)
     .sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
 
-  const giocate = pool.filter(m=>m.risultato);
-  const daGiocare = pool.filter(m=>!m.risultato);
-  const vinte = giocate.filter(m=>m.risultato.esito==='V').length;
+  const giocate = pool.filter(partitaConclusa);
+  const daGiocare = pool.filter(m=>!partitaConclusa(m));
+  const vinte = giocate.filter(m=>esitoDi(m)==='V').length;
   let puntiF = 0, puntiS = 0;
   giocate.forEach(m=>{ const p = matchPoints(m); puntiF += p.gv; puntiS += p.opp; });
+  const ptTot = totalePuntiClassifica(giocate);
 
   let html = `<div class="stats-filters">
     <select onchange="onSynthSeason(this.value)">
@@ -1884,6 +2037,8 @@ function renderSynth(){
     <div class="stat-card loss"><span class="stat-num">${giocate.length-vinte}</span><span class="stat-label">Perse</span></div>
     <div class="stat-card"><span class="stat-num">${puntiF}</span><span class="stat-label">Punti fatti</span></div>
     <div class="stat-card"><span class="stat-num">${puntiS}</span><span class="stat-label">Punti subiti</span></div>
+    <div class="stat-card"><span class="stat-num">${ptTot}</span><span class="stat-label">Punti classifica</span></div>
+    <div class="stat-card"><span class="stat-num">${giocate.length ? (ptTot/giocate.length).toFixed(2) : '0.00'}</span><span class="stat-label">Media pt/partita</span></div>
   </div>`;
 
   if(pool.length === 0){
@@ -1895,16 +2050,18 @@ function renderSynth(){
   html += `<div class="synth-list">` + pool.map(m=>{
     const isHome = m.casa === TEAM;
     const opp = isHome ? m.trasferta : m.casa;
-    const r = m.risultato;
-    const score = r ? escapeHtml(r.score) : '';
-    const icon = r ? (r.esito==='V' ? '<span class="set-icon won">✓</span>' : '<span class="set-icon lost">✗</span>') : '<span class="set-icon"></span>';
-    return `<div class="synth-row ${r ? (r.esito==='V'?'row-win':'row-loss') : ''}" onclick="openModal('${m.n}')">
+    const conc = partitaConclusa(m);
+    const score = m.risultato ? escapeHtml(scoreDi(m)) : '';
+    const pt = puntiClassifica(m);
+    const icon = conc ? (esitoDi(m)==='V' ? '<span class="set-icon won">✓</span>' : '<span class="set-icon lost">✗</span>') : '<span class="set-icon"></span>';
+    return `<div class="synth-row with-pt ${conc ? (esitoDi(m)==='V'?'row-win':'row-loss') : ''}" onclick="openModal('${m.n}')" role="button" tabindex="0" onkeydown="rowKey(event,this)">
       <div class="synth-main">
         <span class="synth-opp">${escapeHtml(opp)}</span>
         <span class="synth-date">${fmtData(m.data)} · ${m.ora}</span>
       </div>
       <span class="synth-ha">${isHome ? '🏠 Casa' : '🚌 Trasf.'}</span>
       <span class="synth-score">${score}</span>
+      <span class="synth-pt">${pt !== null ? '+'+pt+' pt' : (m.risultato ? 'in corso' : '')}</span>
       ${icon}
     </div>`;
   }).join('') + `</div>`;
@@ -1935,7 +2092,7 @@ function buildCsv(){
       m.stagione, m.campionato, m.giornata, m.data, m.ora, m.casa, m.trasferta,
       m.impianto, m.indirizzo, m.citta, m.prov,
       ...setCols,
-      r ? r.score : '', r ? (r.esito==='V'?'Vittoria':'Sconfitta') : '',
+      r ? r.score : '', r ? (partitaConclusa(m) ? (esitoDi(m)==='V'?'Vittoria':'Sconfitta') : 'In corso') : '',
       r ? puntiF : '', r ? puntiS : ''
     ].map(csvEscape).join(';');
   });
