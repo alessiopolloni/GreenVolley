@@ -1401,7 +1401,8 @@
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F",
       "voti": {
-        "Mia": "like"
+        "Mia": "like",
+        "Cristiano": "like"
       }
     },
     {
@@ -1621,6 +1622,13 @@
   "notifiche": [
     {
       "data": "2026-11-11",
+      "ora": "20:15",
+      "tipo": "like",
+      "nome": "Cristiano",
+      "opponent": "CMG CASSERO 14"
+    },
+    {
+      "data": "2026-11-11",
       "ora": "20:02",
       "tipo": "like",
       "nome": "Mia",
@@ -1684,14 +1692,6 @@
       "tipo": "like",
       "nome": "claudio",
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
-    },
-    {
-      "data": "2026-11-07",
-      "ora": "19:20",
-      "tipo": "risultato",
-      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU",
-      "esito": "P",
-      "score": "1-3"
     }
   ]
 }
