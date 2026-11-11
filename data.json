@@ -1334,7 +1334,8 @@
       "campionato": "FIPAV U14F",
       "voti": {
         "claudio": "like",
-        "Alessio": "like"
+        "Alessio": "like",
+        "Gabriele": "like"
       }
     },
     {
@@ -1639,6 +1640,13 @@
       "ora": "21:53",
       "tipo": "like",
       "nome": "Gabriele",
+      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
+    },
+    {
+      "data": "2026-11-11",
+      "ora": "21:53",
+      "tipo": "like",
+      "nome": "Gabriele",
       "opponent": "BVS EURORIPOLI"
     },
     {
@@ -1696,13 +1704,6 @@
       "ora": "13:20",
       "tipo": "like",
       "nome": "Giova",
-      "opponent": "V.B. VOLLEY MUGELLO GIALLA"
-    },
-    {
-      "data": "2026-11-08",
-      "ora": "12:39",
-      "tipo": "like",
-      "nome": "Alessio",
       "opponent": "V.B. VOLLEY MUGELLO GIALLA"
     }
   ]
