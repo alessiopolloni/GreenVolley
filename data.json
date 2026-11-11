@@ -1207,7 +1207,8 @@
         "claudio": "like",
         "Mia": "like",
         "Cristiano": "like",
-        "francesca": "like"
+        "francesca": "like",
+        "Gabriele": "like"
       }
     },
     {
@@ -1633,6 +1634,13 @@
   "notifiche": [
     {
       "data": "2026-11-11",
+      "ora": "21:53",
+      "tipo": "like",
+      "nome": "Gabriele",
+      "opponent": "SAN QUIRICO VOLLEY"
+    },
+    {
+      "data": "2026-11-11",
       "ora": "20:32",
       "tipo": "like",
       "nome": "Franci",
@@ -1695,14 +1703,6 @@
       "opponent": "V.B. VOLLEY MUGELLO GIALLA",
       "esito": "V",
       "score": "3-0"
-    },
-    {
-      "data": "2026-11-08",
-      "ora": "12:03",
-      "tipo": "risultato",
-      "opponent": "V.B. VOLLEY MUGELLO GIALLA",
-      "esito": "V",
-      "score": "2-0"
     }
   ]
 }
