@@ -1621,6 +1621,13 @@
   "notifiche": [
     {
       "data": "2026-11-11",
+      "ora": "20:27",
+      "tipo": "like",
+      "nome": "Mia",
+      "opponent": "CMG CASSERO 14"
+    },
+    {
+      "data": "2026-11-11",
       "ora": "20:15",
       "tipo": "like",
       "nome": "Cristiano",
@@ -1683,13 +1690,6 @@
       "ora": "20:10",
       "tipo": "like",
       "nome": "Alessio",
-      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
-    },
-    {
-      "data": "2026-11-07",
-      "ora": "19:36",
-      "tipo": "like",
-      "nome": "claudio",
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
     }
   ]
