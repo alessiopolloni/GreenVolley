@@ -1250,7 +1250,8 @@
         "Sandra": "like",
         "claudio": "like",
         "Mia": "like",
-        "Cristiano": "like"
+        "Cristiano": "like",
+        "Gabriele": "like"
       }
     },
     {
@@ -1637,6 +1638,13 @@
       "ora": "21:53",
       "tipo": "like",
       "nome": "Gabriele",
+      "opponent": "U14F SAVINESE PINK"
+    },
+    {
+      "data": "2026-11-11",
+      "ora": "21:53",
+      "tipo": "like",
+      "nome": "Gabriele",
       "opponent": "SAN QUIRICO VOLLEY"
     },
     {
@@ -1695,14 +1703,6 @@
       "tipo": "like",
       "nome": "Cristiano",
       "opponent": "V.B. VOLLEY MUGELLO GIALLA"
-    },
-    {
-      "data": "2026-11-08",
-      "ora": "12:33",
-      "tipo": "risultato",
-      "opponent": "V.B. VOLLEY MUGELLO GIALLA",
-      "esito": "V",
-      "score": "3-0"
     }
   ]
 }
