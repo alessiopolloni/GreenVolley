@@ -1413,7 +1413,8 @@
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F",
       "voti": {
-        "Cristiano": "like"
+        "Cristiano": "like",
+        "Franci": "like"
       }
     },
     {
@@ -1633,6 +1634,13 @@
   "notifiche": [
     {
       "data": "2026-11-11",
+      "ora": "20:32",
+      "tipo": "like",
+      "nome": "Franci",
+      "opponent": "CMG CASSERO 14"
+    },
+    {
+      "data": "2026-11-11",
       "ora": "20:31",
       "tipo": "risultato",
       "opponent": "CMG CASSERO 14",
@@ -1696,14 +1704,6 @@
       "opponent": "V.B. VOLLEY MUGELLO GIALLA",
       "esito": "V",
       "score": "2-0"
-    },
-    {
-      "data": "2026-11-08",
-      "ora": "11:27",
-      "tipo": "risultato",
-      "opponent": "V.B. VOLLEY MUGELLO GIALLA",
-      "esito": "V",
-      "score": "1-0"
     }
   ]
 }
