@@ -1373,7 +1373,8 @@
       "voti": {
         "Cristiano": "like",
         "Alessio": "like",
-        "Giova": "like"
+        "Giova": "like",
+        "Gabriele": "like"
       }
     },
     {
@@ -1640,6 +1641,13 @@
       "ora": "21:53",
       "tipo": "like",
       "nome": "Gabriele",
+      "opponent": "V.B. VOLLEY MUGELLO GIALLA"
+    },
+    {
+      "data": "2026-11-11",
+      "ora": "21:53",
+      "tipo": "like",
+      "nome": "Gabriele",
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
     },
     {
@@ -1698,13 +1706,6 @@
       "tipo": "like",
       "nome": "Mia",
       "opponent": "CMG CASSERO 14"
-    },
-    {
-      "data": "2026-11-08",
-      "ora": "13:20",
-      "tipo": "like",
-      "nome": "Giova",
-      "opponent": "V.B. VOLLEY MUGELLO GIALLA"
     }
   ]
 }
