@@ -1392,11 +1392,23 @@
           {
             "gv": 25,
             "opp": 15
+          },
+          {
+            "gv": 16,
+            "opp": 25
+          },
+          {
+            "gv": 25,
+            "opp": 17
+          },
+          {
+            "gv": 15,
+            "opp": 8
           }
         ],
-        "score": "1-1",
-        "esito": "P",
-        "note": "15-25, 25-15"
+        "score": "3-2",
+        "esito": "V",
+        "note": "15-25, 25-15, 16-25, 25-17, 15-8"
       },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F",
@@ -1621,6 +1633,14 @@
   "notifiche": [
     {
       "data": "2026-11-11",
+      "ora": "20:31",
+      "tipo": "risultato",
+      "opponent": "CMG CASSERO 14",
+      "esito": "V",
+      "score": "3-2"
+    },
+    {
+      "data": "2026-11-11",
       "ora": "20:27",
       "tipo": "like",
       "nome": "Mia",
@@ -1684,13 +1704,6 @@
       "opponent": "V.B. VOLLEY MUGELLO GIALLA",
       "esito": "V",
       "score": "1-0"
-    },
-    {
-      "data": "2026-11-07",
-      "ora": "20:10",
-      "tipo": "like",
-      "nome": "Alessio",
-      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
     }
   ]
 }
