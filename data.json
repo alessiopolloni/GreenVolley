@@ -1419,7 +1419,8 @@
       "campionato": "FIPAV U14F",
       "voti": {
         "Cristiano": "like",
-        "Gabriele": "like"
+        "Gabriele": "like",
+        "s": "like"
       }
     },
     {
@@ -1638,6 +1639,13 @@
   ],
   "notifiche": [
     {
+      "data": "2026-11-14",
+      "ora": "07:41",
+      "tipo": "like",
+      "nome": "s",
+      "opponent": "CMG CASSERO 14"
+    },
+    {
       "data": "2026-11-11",
       "ora": "21:53",
       "tipo": "like",
@@ -1699,13 +1707,6 @@
       "ora": "20:27",
       "tipo": "like",
       "nome": "Mia",
-      "opponent": "CMG CASSERO 14"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "20:15",
-      "tipo": "like",
-      "nome": "Cristiano",
       "opponent": "CMG CASSERO 14"
     }
   ]
