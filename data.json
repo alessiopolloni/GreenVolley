@@ -1434,7 +1434,25 @@
       "indirizzo": "VIALE CALATAFIMI",
       "citta": "Firenze",
       "prov": "FI",
-      "risultato": null,
+      "risultato": {
+        "sets": [
+          {
+            "gv": 7,
+            "opp": 25
+          },
+          {
+            "gv": 19,
+            "opp": 25
+          },
+          {
+            "gv": 13,
+            "opp": 25
+          }
+        ],
+        "score": "0-3",
+        "esito": "P",
+        "note": "7-25, 19-25, 13-25"
+      },
       "stagione": "2026/2027",
       "campionato": "UISP U14F"
     },
@@ -1639,6 +1657,14 @@
   ],
   "notifiche": [
     {
+      "data": "2026-11-21",
+      "ora": "18:34",
+      "tipo": "risultato",
+      "opponent": "RINASCITA VOLLEY BLU",
+      "esito": "P",
+      "score": "0-3"
+    },
+    {
       "data": "2026-11-14",
       "ora": "07:41",
       "tipo": "like",
@@ -1701,13 +1727,6 @@
       "opponent": "CMG CASSERO 14",
       "esito": "V",
       "score": "3-2"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "20:27",
-      "tipo": "like",
-      "nome": "Mia",
-      "opponent": "CMG CASSERO 14"
     }
   ]
 }
