@@ -1454,7 +1454,10 @@
         "note": "7-25, 19-25, 13-25"
       },
       "stagione": "2026/2027",
-      "campionato": "UISP U14F"
+      "campionato": "UISP U14F",
+      "voti": {
+        "Alessio": "unlike"
+      }
     },
     {
       "n": "s2026_2027_fipav_u14f_14261",
@@ -1658,6 +1661,13 @@
   "notifiche": [
     {
       "data": "2026-11-21",
+      "ora": "18:37",
+      "tipo": "unlike",
+      "nome": "Alessio",
+      "opponent": "RINASCITA VOLLEY BLU"
+    },
+    {
+      "data": "2026-11-21",
       "ora": "18:34",
       "tipo": "risultato",
       "opponent": "RINASCITA VOLLEY BLU",
@@ -1719,14 +1729,6 @@
       "tipo": "like",
       "nome": "Franci",
       "opponent": "CMG CASSERO 14"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "20:31",
-      "tipo": "risultato",
-      "opponent": "CMG CASSERO 14",
-      "esito": "V",
-      "score": "3-2"
     }
   ]
 }
