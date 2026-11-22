@@ -1542,7 +1542,7 @@
       "casa": "BVS EURORIPOLI",
       "trasferta": "ASD GREEN VOLLEY",
       "impianto": "Palazzetto IT A. Volta",
-      "indirizzo": "via del Pratello",
+      "indirizzo": "Palestra Volta, via del Pratello",
       "citta": "Bagno a Ripoli",
       "prov": "FI",
       "risultato": null,
@@ -1661,6 +1661,14 @@
   "notifiche": [
     {
       "data": "2026-11-22",
+      "ora": "08:48",
+      "tipo": "modifica",
+      "opponent": "BVS EURORIPOLI",
+      "campionato": "UISP U14F",
+      "giornata": 7
+    },
+    {
+      "data": "2026-11-22",
       "ora": "08:47",
       "tipo": "modifica",
       "opponent": "BVS EURORIPOLI",
@@ -1723,13 +1731,6 @@
       "tipo": "like",
       "nome": "Gabriele",
       "opponent": "U14F SAVINESE PINK"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "21:53",
-      "tipo": "like",
-      "nome": "Gabriele",
-      "opponent": "SAN QUIRICO VOLLEY"
     }
   ]
 }
