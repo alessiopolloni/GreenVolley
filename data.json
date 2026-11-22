@@ -1475,11 +1475,15 @@
           {
             "gv": 4,
             "opp": 25
+          },
+          {
+            "gv": 7,
+            "opp": 25
           }
         ],
-        "score": "0-1",
+        "score": "0-2",
         "esito": "P",
-        "note": "4-25"
+        "note": "4-25, 7-25"
       },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
