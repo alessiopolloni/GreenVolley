@@ -1479,11 +1479,15 @@
           {
             "gv": 7,
             "opp": 25
+          },
+          {
+            "gv": 19,
+            "opp": 25
           }
         ],
-        "score": "0-2",
+        "score": "0-3",
         "esito": "P",
-        "note": "4-25, 7-25"
+        "note": "4-25, 7-25, 19-25"
       },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
@@ -1675,6 +1679,14 @@
   "notifiche": [
     {
       "data": "2026-11-22",
+      "ora": "12:09",
+      "tipo": "risultato",
+      "opponent": "GIOTTI VICTORIA VOLLEY U14",
+      "esito": "P",
+      "score": "0-3"
+    },
+    {
+      "data": "2026-11-22",
       "ora": "08:48",
       "tipo": "modifica",
       "opponent": "BVS EURORIPOLI",
@@ -1738,13 +1750,6 @@
       "tipo": "like",
       "nome": "Gabriele",
       "opponent": "BVS EURORIPOLI"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "21:53",
-      "tipo": "like",
-      "nome": "Gabriele",
-      "opponent": "U14F SAVINESE PINK"
     }
   ]
 }
