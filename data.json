@@ -1490,7 +1490,10 @@
         "note": "4-25, 7-25, 19-25"
       },
       "stagione": "2026/2027",
-      "campionato": "FIPAV U14F"
+      "campionato": "FIPAV U14F",
+      "voti": {
+        "Alessio": "unlike"
+      }
     },
     {
       "n": "s2026_2027_fipav_u14f_14264",
@@ -1679,6 +1682,13 @@
   "notifiche": [
     {
       "data": "2026-11-22",
+      "ora": "12:10",
+      "tipo": "unlike",
+      "nome": "Alessio",
+      "opponent": "GIOTTI VICTORIA VOLLEY U14"
+    },
+    {
+      "data": "2026-11-22",
       "ora": "12:09",
       "tipo": "risultato",
       "opponent": "GIOTTI VICTORIA VOLLEY U14",
@@ -1743,13 +1753,6 @@
       "tipo": "like",
       "nome": "Gabriele",
       "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "21:53",
-      "tipo": "like",
-      "nome": "Gabriele",
-      "opponent": "BVS EURORIPOLI"
     }
   ]
 }
