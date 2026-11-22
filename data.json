@@ -1541,9 +1541,9 @@
       "ora": "15:30",
       "casa": "BVS EURORIPOLI",
       "trasferta": "ASD GREEN VOLLEY",
-      "impianto": "PALLONE GEODETICO",
-      "indirizzo": "VIA ISONZO 26/A",
-      "citta": "Sorgane",
+      "impianto": "Palazzetto IT A. Volta",
+      "indirizzo": "via del Pratello",
+      "citta": "Bagno a Ripoli",
       "prov": "FI",
       "risultato": null,
       "stagione": "2026/2027",
@@ -1660,6 +1660,14 @@
   ],
   "notifiche": [
     {
+      "data": "2026-11-22",
+      "ora": "08:47",
+      "tipo": "modifica",
+      "opponent": "BVS EURORIPOLI",
+      "campionato": "UISP U14F",
+      "giornata": 7
+    },
+    {
       "data": "2026-11-21",
       "ora": "18:37",
       "tipo": "unlike",
@@ -1722,13 +1730,6 @@
       "tipo": "like",
       "nome": "Gabriele",
       "opponent": "SAN QUIRICO VOLLEY"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "20:32",
-      "tipo": "like",
-      "nome": "Franci",
-      "opponent": "CMG CASSERO 14"
     }
   ]
 }
