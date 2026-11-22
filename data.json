@@ -1470,7 +1470,17 @@
       "indirizzo": "VIA G. MAZZINI 75 STRADA IN CHIANTI - 50022 GREVE",
       "citta": "Greve in Chianti",
       "prov": "FI",
-      "risultato": null,
+      "risultato": {
+        "sets": [
+          {
+            "gv": 4,
+            "opp": 25
+          }
+        ],
+        "score": "0-1",
+        "esito": "P",
+        "note": "4-25"
+      },
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F"
     },
