@@ -1615,7 +1615,8 @@
       "stagione": "2026/2027",
       "campionato": "FIPAV U14F",
       "voti": {
-        "Sandra": "unlike"
+        "Sandra": "unlike",
+        "Mia": "unlike"
       }
     },
     {
@@ -1680,6 +1681,13 @@
     }
   ],
   "notifiche": [
+    {
+      "data": "2026-11-28",
+      "ora": "14:04",
+      "tipo": "unlike",
+      "nome": "Mia",
+      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
+    },
     {
       "data": "2026-11-22",
       "ora": "12:10",
@@ -1746,13 +1754,6 @@
       "tipo": "like",
       "nome": "Gabriele",
       "opponent": "V.B. VOLLEY MUGELLO GIALLA"
-    },
-    {
-      "data": "2026-11-11",
-      "ora": "21:53",
-      "tipo": "like",
-      "nome": "Gabriele",
-      "opponent": "VALDARNO PROJECT MONTEVARCHI BLU"
     }
   ]
 }
